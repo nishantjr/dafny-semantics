@@ -15,8 +15,7 @@ module DAFNY-COMMON
   syntax WildIdent ::= "_" | NoUSIdent
   syntax NoUSIdent ::= Id // TODO: Fixme
   syntax Ident ::= Id // TODO: Fixme
-  syntax NameSegment ::= Ident SuffixList
-  syntax SuffixList ::= List{Suffix, ""} [klabel(suffixList)]
+  syntax NameSegment ::= Ident
   syntax Suffix ::= ArgumentListSuffix
   syntax ArgumentListSuffix ::= "(" ExpressionList ")"
 
@@ -45,13 +44,16 @@ module DAFNY-COMMON
   syntax Guard ::= Expression
 
   syntax Lhs ::= NameSegment
+               | Lhs Suffix
   syntax Rhs ::= Expression
 
   syntax Type ::= "bool" | "int" | "nat"
   syntax UnaryExpression ::= PrimaryExpression
                            | "-" UnaryExpression
                            | "!" UnaryExpression
-  syntax PrimaryExpression ::= ConstAtomExpression
+  syntax ConstAtomSuffix ::= ConstAtomExpression | ConstAtomSuffix Suffix
+  syntax NameSegmentSuffix ::= NameSegment | NameSegmentSuffix Suffix
+  syntax PrimaryExpression ::= ConstAtomSuffix
                              | NameSegment
                              | ParensExpression
   syntax ParensExpression ::= "(" ExpressionList ")" [klabel(parensExpression)]
@@ -111,10 +113,10 @@ Expressions
   rule <k> (E, .ExpressionList):ParensExpression => E ... </k>
 
   // Variable lookup
-  rule <k> X:Ident .SuffixList => V ... </k>
+  rule <k> X:Ident => V ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> V ... </store>
-  rule <k> X:Ident .SuffixList => #error ... </k>
+  rule <k> X:Ident => #error ... </k>
        <env> ENV:Map </env>
     requires notBool X in_keys(ENV)
 
@@ -138,10 +140,10 @@ Statements
        <nextLoc> L => L +Int 1 </nextLoc>
 
   // UpdateStmt
-  rule <k> X:Ident .SuffixList := V:ConstAtomExpression ; => .K ... </k>
+  rule <k> X:Ident := V:ConstAtomExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
-  rule <k> X:Ident .SuffixList := V:ConstAtomExpression ; => .K ... </k>
+  rule <k> X:Ident := V:ConstAtomExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
 

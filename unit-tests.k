@@ -11,33 +11,33 @@ module UNIT-TESTS
   rule <k> 2 < 1 => false </k>
 
   rule <k> var i : int ;
-           i .SuffixList := i .SuffixList + 1 ;
-           i .SuffixList := i .SuffixList + i .SuffixList ;
-        ~> i .SuffixList
+           i := i + 1 ;
+           i := i + i ;
+        ~> i
         => 2
        </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
 
-  rule <k> i .SuffixList => #error </k>
+  rule <k> i => #error </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 </nextLoc>
 
   rule <k> var i : int ;
-           if 2 < 1 { i .SuffixList := 0 ;   }
-           else     { i .SuffixList := 100 ; }
-        ~> i .SuffixList
+           if 2 < 1 { i := 0 ;   }
+           else     { i := 100 ; }
+        ~> i
         => 100
        </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
   rule <k> var i : int ;
-           if 0 < 1 { i .SuffixList := 0 ;   }
-           else     { i .SuffixList := 100 ; }
-        ~> i .SuffixList
+           if 0 < 1 { i := 0 ;   }
+           else     { i := 100 ; }
+        ~> i
         => 0
        </k>
        <store> .Map => ?_ </store>
