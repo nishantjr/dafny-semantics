@@ -1,4 +1,4 @@
-Loosly based on https://ece.uwaterloo.ca/~agurfink/ece653/2018/03/05/dafny-ref
+Loosely based on https://github.com/Microsoft/dafny/raw/master/Docs/DafnyRef/out/DafnyRef.pdf
 
 ```k
 module DAFNY-SYNTAX
@@ -51,26 +51,30 @@ module DAFNY-COMMON
   syntax UnaryExpression ::= PrimaryExpression
                            | "-" UnaryExpression
                            | "!" UnaryExpression
-  syntax ConstAtomSuffix ::= ConstAtomExpression | ConstAtomSuffix Suffix
-  syntax NameSegmentSuffix ::= NameSegment | NameSegmentSuffix Suffix
+  syntax ConstAtomSuffix ::= ConstAtomExpression
+                           | ConstAtomSuffix Suffix [klabel(caeSuffix)]
+  syntax NameSegmentSuffix ::= NameSegment
+                             | NameSegmentSuffix Suffix [klabel(nsSuffix)]
   syntax PrimaryExpression ::= ConstAtomSuffix
                              | NameSegment
-                             | ParensExpression
   syntax ParensExpression ::= "(" ExpressionList ")" [klabel(parensExpression)]
 
-  syntax ConstAtomExpression ::= Bool | "null" | Int
+  syntax ConstAtomExpression ::= LiteralExpression
+                               | ParensExpression
+
+  syntax LiteralExpression ::= Bool | "null" | Int
   syntax MulOp ::= "*" | "/" | "%"
-  syntax Factor ::= Factor MulOp UnaryExpression [strict(1, 3)]
+  syntax Factor ::= Factor MulOp UnaryExpression [klabel(mulOp), strict(1, 3)]
                   | UnaryExpression
   syntax AddOp ::= "+" | "-"
   syntax Term ::= Factor
-                | Term AddOp Factor [strict(1, 3)]
+                | Term AddOp Factor [klabel(addOp), strict(1, 3)]
 
   syntax ExpressionList ::= List{Expression, ","} [klabel(ExpressionList)]
   syntax Expression ::= Expression ";" Expression
                       > RelationalExpression
   syntax RelationalExpression ::= Term
-                                | Term RelOp Term [strict(1, 3)]
+                                | Term RelOp Term [klabel(relOp), strict(1, 3)]
   syntax RelOp ::= "==" | "<" | ">" | "<=" | ">=" | "!="
 
   syntax RequiresClause ::= "requires" Expression
@@ -79,7 +83,6 @@ module DAFNY-COMMON
   syntax MethodSpec ::= MethodSpec MethodSpec
   syntax MethodSpec ::= RequiresClause
                       | EnsuresClause
-
 endmodule
 
 module DAFNY
