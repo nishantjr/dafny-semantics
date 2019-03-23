@@ -17,7 +17,7 @@ module DAFNY-COMMON
   syntax Ident ::= Id // TODO: Fixme
   syntax NameSegment ::= Ident
   syntax Suffix ::= ArgumentListSuffix
-  syntax ArgumentListSuffix ::= "(" ExpressionList ")"
+  syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix)]
 
   syntax Pgm ::= TopDeclList
   syntax TopDeclList ::= List{TopDecl, ""} [klabel(topDeclList)]
@@ -52,7 +52,7 @@ module DAFNY-COMMON
                            | "-" UnaryExpression
                            | "!" UnaryExpression
   syntax ConstAtomSuffix ::= ConstAtomExpression
-                           | ConstAtomSuffix Suffix [klabel(caeSuffix)]
+                           | ConstAtomSuffix Suffix [klabel(caeSuffix), strict(1)]
   syntax NameSegmentSuffix ::= NameSegment
                              | NameSegmentSuffix Suffix [klabel(nsSuffix)]
   syntax PrimaryExpression ::= ConstAtomSuffix
@@ -103,7 +103,7 @@ Expressions
 -----------
 
 ```k
-  syntax KResult ::= ConstAtomExpression
+  syntax KResult ::= LiteralExpression
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>

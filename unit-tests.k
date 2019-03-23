@@ -6,6 +6,7 @@ module UNIT-TESTS
   rule <k> 1 / 0 => #error ~> 1 / 0 </k>
   rule <k> 1 / 2 => 0 </k>
   rule <k> 1 / 2 / 3 => 0 </k>
+  rule <k> 2 + (2 + 2) => 6 </k>
   rule <k> 2 / (2 / 3) => #error ~> 2 / 0 </k>
   rule <k> 1 < 2 => true </k>
   rule <k> 2 < 1 => false </k>
@@ -34,6 +35,7 @@ module UNIT-TESTS
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
+
   rule <k> var i : int ;
            if 0 < 1 { i := 0 ;   }
            else     { i := 100 ; }
