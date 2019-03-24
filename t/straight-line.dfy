@@ -1,5 +1,14 @@
+method main()
+  returns (r: int)
+  requires true
+  ensures true
+{
+  var x : int;
+  straightLine(5);
+}
+
 method straightLine(x: int)
-    returns (r: int)
+  returns (r: int)
   requires x > 0
   ensures r > 0
 {

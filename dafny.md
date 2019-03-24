@@ -35,18 +35,21 @@ module DAFNY-COMMON
   syntax StmtList ::= List{Stmt, ""} [klabel(stmtList)]
   syntax Stmt ::= BlockStmt
                 | UpdateStmt
+                | CallStmt
                 | VarDeclStmt
                 | IfStmt
   syntax VarDeclStmt ::= "var" IdentType ";"
   syntax UpdateStmt ::= Lhs ":=" Rhs ";" [strict(2)]
+  syntax CallStmt ::= Lhs ";" [strict]
+               //   | [ Lhs { , Lhs } ":=" Lhs ";"
   syntax IfStmt ::= "if" Guard BlockStmt
                     "else" BlockStmt [strict(1)]
   syntax Guard ::= Expression
 
   syntax Lhs ::= NameSegment
-               | Lhs Suffix
+               | Lhs Suffix [strict(1)]
   syntax Rhs ::= Expression
-
+  
   syntax Type ::= "bool" | "int" | "nat"
   syntax UnaryExpression ::= PrimaryExpression
                            | "-" UnaryExpression
@@ -70,7 +73,7 @@ module DAFNY-COMMON
   syntax Term ::= Factor
                 | Term AddOp Factor [klabel(addOp), strict(1, 3)]
 
-  syntax ExpressionList ::= List{Expression, ","} [klabel(ExpressionList)]
+  syntax ExpressionList ::= List{Expression, ","} [klabel(expressionList)]
   syntax Expression ::= Expression ";" Expression
                       > RelationalExpression
   syntax RelationalExpression ::= Term
@@ -91,19 +94,83 @@ module DAFNY
   imports INT
 
   configuration <T>
-                  <k> $PGM:Pgm </k>
+                  <k> $PGM:Pgm ~> execute </k>
+                  <globalEnv> .Map </globalEnv>
                   <env> .Map </env>
                   <store> .Map </store>
                   <nextLoc> 0 </nextLoc>
                 </T>
   syntax KItem ::= "#error"
+
+  syntax ValueExpression
+  syntax KResult ::= ValueExpression
+```
+
+Execution
+---------
+
+```k
+  rule <k> T Ts:TopDeclList => T ~> Ts ... </k>
+  rule <k> .TopDeclList => .K ... </k>
+```
+
+Execution begins with a call to `main()`:
+
+```k
+  syntax KItem ::= "execute"
+  syntax Id ::= "main" [token]
+  rule <k> execute => main (.ExpressionList) ; ... </k> 
+       <env> .Map => GENV </env>
+       <globalEnv> GENV:Map </globalEnv>
+```
+
+Methods: Declaration and calls
+------------------------------
+
+TODO: We assume all methods are top-level.
+Declaring a method adds it as a lambda to the store. This drops the `requires`
+and `ensures` clauses.
+
+```k
+  syntax LambdaExpresssion ::= #lambda(Formals, Formals, BlockStmt)
+  syntax ConstAtomExpression ::= LambdaExpresssion
+  syntax ValueExpression ::= LambdaExpresssion
+  rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
+       <globalEnv> Env => Env[MNAME <- L ] </globalEnv> 
+       <store> ... .Map => L |-> #lambda(PARAMS, RETURNS, STMTS) ... </store>
+       <nextLoc> L => L +Int 1 </nextLoc>
+```
+
+Method invocation is lambda application:
+
+```k
+  rule <k> #lambda((PARAMS:GIdentTypeList), RETURNS, STMTS)
+                  ( VALUES:ExpressionList ):ArgumentListSuffix 
+        => #declareVarsForArgs(PARAMS ! VALUES)
+        ~> STMTS
+           ...
+       </k>
+       <env> ENV => GENV </env>
+       <globalEnv> GENV </globalEnv>
+
+  syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
+  rule #declareVarsForArgs( (X:Id : TYPE):IdentType, ITs
+                          ! VAL , VALs:ExpressionList
+                          )
+    => var X : TYPE ;
+       X := VAL ;
+       #declareVarsForArgs( ITs
+                          ! VALs
+                          )
+  rule #declareVarsForArgs(ITs ! VALs)
+    => .StmtList
 ```
 
 Expressions
 -----------
 
 ```k
-  syntax KResult ::= LiteralExpression
+  syntax ValueExpression ::= LiteralExpression
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
