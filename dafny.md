@@ -173,6 +173,7 @@ Expressions
 ```k
   syntax ValueExpression ::= LiteralExpression
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
+  rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
     requires I2 =/=Int 0
