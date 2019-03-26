@@ -49,7 +49,7 @@ module DAFNY-COMMON
   syntax Lhs ::= NameSegment
                | Lhs Suffix [strict(1), klabel(applicationExpression)]
   syntax Rhs ::= Expression
-  
+
   syntax Type ::= "bool" | "int" | "nat"
   syntax UnaryExpression ::= PrimaryExpression
                            | "-" UnaryExpression
@@ -119,7 +119,7 @@ Execution begins with a call to `main()`:
 ```k
   syntax KItem ::= "execute"
   syntax Id ::= "main" [token]
-  rule <k> execute => main (.ExpressionList) ; ... </k> 
+  rule <k> execute => main (.ExpressionList) ; ... </k>
        <env> .Map => GENV </env>
        <globalEnv> GENV:Map </globalEnv>
 ```
@@ -138,7 +138,7 @@ and `ensures` clauses.
   //syntax ConstAtomExpression ::= LambdaExpression
   syntax ValueExpression ::= LambdaExpression
   rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
-       <globalEnv> Env => Env[MNAME <- L ] </globalEnv> 
+       <globalEnv> Env => Env[MNAME <- L ] </globalEnv>
        <store> ... .Map => L |-> #lambda(PARAMS, RETURNS, STMTS) ... </store>
        <nextLoc> L => L +Int 1 </nextLoc>
 ```
