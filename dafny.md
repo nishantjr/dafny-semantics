@@ -100,7 +100,7 @@ module DAFNY
                   <store> .Map </store>
                   <nextLoc> 0 </nextLoc>
                 </T>
-  syntax KItem ::= "#error"
+  syntax KItem ::= "#error" "(" String ")"
 
   syntax ValueExpression
   syntax KResult ::= ValueExpression
@@ -176,7 +176,7 @@ Expressions
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
     requires I2 =/=Int 0
-  rule <k> I1:Int / 0 => #error ~> I1:Int / 0 ... </k>
+  rule <k> I1:Int / 0 => #error("Division by zero") ~> I1:Int / 0 ... </k>
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
 
   // ParensExpression with a single inner expression reduce to the expression
@@ -187,10 +187,9 @@ Expressions
   rule <k> X:Ident => V ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> V ... </store>
-  rule <k> X:Ident => #error ... </k>
+  rule <k> X:Ident => #error("Undefined variable") ~> X ... </k>
        <env> ENV:Map </env>
     requires notBool X in_keys(ENV)
-
 ```
 
 Statements

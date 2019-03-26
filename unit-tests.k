@@ -1,14 +1,15 @@
 module UNIT-TESTS
   imports DAFNY
   syntax Id ::= "i" [token]
+              | "j" [token]
               | "foo" [token]
 
   rule <k> 2 + 2 * 2 => 6 </k>
-  rule <k> 1 / 0 => #error ~> 1 / 0 </k>
+  rule <k> 1 / 0 => #error("Division by zero") ~> 1 / 0 </k>
   rule <k> 1 / 2 => 0 </k>
   rule <k> 1 / 2 / 3 => 0 </k>
   rule <k> 2 + (2 + 2) => 6 </k>
-  rule <k> 2 / (2 / 3) => #error ~> 2 / 0 </k>
+  rule <k> 2 / (2 / 3) => #error("Division by zero") ~> 2 / 0 </k>
   rule <k> 1 < 2 => true </k>
   rule <k> 2 < 1 => false </k>
 
@@ -22,7 +23,7 @@ module UNIT-TESTS
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
 
-  rule <k> i => #error </k>
+  rule <k> i => #error("Undefined variable") ~> i ~> ?_ </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 </nextLoc>
