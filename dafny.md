@@ -47,7 +47,7 @@ module DAFNY-COMMON
   syntax Guard ::= Expression
 
   syntax Lhs ::= NameSegment
-               | Lhs Suffix [strict(1)]
+               | Lhs Suffix [strict(1), klabel(applicationExpression)]
   syntax Rhs ::= Expression
   
   syntax Type ::= "bool" | "int" | "nat"
@@ -65,7 +65,7 @@ module DAFNY-COMMON
   syntax ConstAtomExpression ::= LiteralExpression
                                | ParensExpression
 
-  syntax LiteralExpression ::= Bool | "null" | Int
+  syntax LiteralExpression ::= Int | Bool | "null"
   syntax MulOp ::= "*" | "/" | "%"
   syntax Factor ::= Factor MulOp UnaryExpression [klabel(mulOp), strict(1, 3)]
                   | UnaryExpression
@@ -132,9 +132,11 @@ Declaring a method adds it as a lambda to the store. This drops the `requires`
 and `ensures` clauses.
 
 ```k
-  syntax LambdaExpresssion ::= #lambda(Formals, Formals, BlockStmt)
-  syntax ConstAtomExpression ::= LambdaExpresssion
-  syntax ValueExpression ::= LambdaExpresssion
+  syntax KItem ::= "#Test"
+  syntax Lhs ::= LambdaExpression
+  syntax LambdaExpression ::= #lambda(Formals, Formals, BlockStmt)
+  //syntax ConstAtomExpression ::= LambdaExpression
+  syntax ValueExpression ::= LambdaExpression
   rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
        <globalEnv> Env => Env[MNAME <- L ] </globalEnv> 
        <store> ... .Map => L |-> #lambda(PARAMS, RETURNS, STMTS) ... </store>
@@ -144,8 +146,7 @@ and `ensures` clauses.
 Method invocation is lambda application:
 
 ```k
-  rule <k> #lambda((PARAMS:GIdentTypeList), RETURNS, STMTS)
-                  ( VALUES:ExpressionList ):ArgumentListSuffix 
+  rule <k> #lambda((PARAMS:GIdentTypeList), RETURNS, STMTS) ( VALUES:ExpressionList ) 
         => #declareVarsForArgs(PARAMS ! VALUES)
         ~> STMTS
            ...
@@ -162,7 +163,7 @@ Method invocation is lambda application:
        #declareVarsForArgs( ITs
                           ! VALs
                           )
-  rule #declareVarsForArgs(ITs ! VALs)
+  rule #declareVarsForArgs(.GIdentTypeList ! .ExpressionList)
     => .StmtList
 ```
 

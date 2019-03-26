@@ -4,7 +4,7 @@ method main()
   ensures true
 {
   var x : int;
-  straightLine(5);
+  x := straightLine(5);
 }
 
 method straightLine(x: int)
