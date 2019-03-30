@@ -12,7 +12,7 @@ module DAFNY-COMMON
   imports BOOL
 
   // tokens
-  syntax WildIdent ::= "_" | NoUSIdent
+  syntax WildIdent ::= NoUSIdent
   syntax NoUSIdent ::= Id // TODO: Fixme
   syntax Ident ::= Id // TODO: Fixme
   syntax NameSegment ::= Ident
@@ -40,14 +40,12 @@ module DAFNY-COMMON
                 | IfStmt
   syntax VarDeclStmt ::= "var" IdentType ";"
   syntax UpdateStmt ::= Lhs ":=" Rhs ";" [strict(2)]
-  syntax CallStmt ::= Lhs ";" [strict]
-               //   | [ Lhs { , Lhs } ":=" Lhs ";"
+  syntax CallStmt ::= Rhs ";" [strict]
   syntax IfStmt ::= "if" Guard BlockStmt
                     "else" BlockStmt [strict(1)]
   syntax Guard ::= Expression
 
   syntax Lhs ::= NameSegment
-               | Lhs Suffix [strict(1), klabel(applicationExpression)]
   syntax Rhs ::= Expression
 
   syntax Type ::= "bool" | "int" | "nat"
@@ -64,6 +62,7 @@ module DAFNY-COMMON
 
   syntax ConstAtomExpression ::= LiteralExpression
                                | ParensExpression
+                               | NameSegment
 
   syntax LiteralExpression ::= Int | Bool | "null"
   syntax MulOp ::= "*" | "/" | "%"
@@ -133,9 +132,8 @@ and `ensures` clauses.
 
 ```k
   syntax KItem ::= "#Test"
-  syntax Lhs ::= LambdaExpression
   syntax LambdaExpression ::= #lambda(Formals, Formals, BlockStmt)
-  //syntax ConstAtomExpression ::= LambdaExpression
+  syntax ConstAtomExpression ::= LambdaExpression
   syntax ValueExpression ::= LambdaExpression
   rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
        <globalEnv> Env => Env[MNAME <- L ] </globalEnv>
@@ -146,12 +144,26 @@ and `ensures` clauses.
 Method invocation is lambda application:
 
 ```k
-  rule <k> #lambda((PARAMS:GIdentTypeList), RETURNS, STMTS) ( VALUES:ExpressionList ) 
-        => #declareVarsForArgs(PARAMS ! VALUES)
+  syntax K ::= SetEnv(Map)
+
+  rule <k> SetEnv(M) => . ... </k>
+       <env> _ => M </env>
+
+  syntax K ::= "Return" "(" GIdentTypeList "!" Map ")" // Return and store old environment atomically
+
+  rule <k> Return((X:Id : TYPE):IdentType, .GIdentTypeList ! M) => S[ENV[X]] ... </k>
+       <env> ENV => M </env>
+       <store> S </store>      
+
+  rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList ) 
+        => SetEnv(GENV)
+        ~> #declareVarsForArgs(PARAMS ! VALUES)
+        ~> #declareVarsForReturns(RETURNS)
         ~> STMTS
+        ~> Return(RETURNS ! ENV)
            ...
        </k>
-       <env> ENV => GENV </env>
+       <env> ENV </env>
        <globalEnv> GENV </globalEnv>
 
   syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
@@ -165,6 +177,14 @@ Method invocation is lambda application:
                           )
   rule #declareVarsForArgs(.GIdentTypeList ! .ExpressionList)
     => .StmtList
+
+  syntax StmtList ::= "#declareVarsForReturns" "(" GIdentTypeList ")" [function]
+  rule #declareVarsForReturns ( (X:Id : TYPE):IdentType, ITs )
+    => var X : TYPE ;
+       #declareVarsForReturns(ITs)
+
+  rule #declareVarsForReturns(.GIdentTypeList) => .StmtList
+
 ```
 
 Expressions
@@ -201,8 +221,8 @@ Statements
   rule <k> .StmtList => .K ... </k>
 
   // BlockStmt
-  // TODO: This needs to introduce a new variable scope
-  rule <k> { Ss } => Ss ... </k>
+  rule <k> { Ss } => Ss ~> SetEnv(ENV) ... </k>
+       <env> ENV </env>
 
   // VarDeclStmt
   rule <k> var X : TYPE ; => .K ... </k>
