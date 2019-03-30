@@ -57,12 +57,12 @@ module UNIT-TESTS
                  i := 5 ;
               }
             ):MethodDecl
-         ~> foo ( .ExpressionList ) ;
-         => .K
+         ~> foo ( .ExpressionList ):ArgumentListSuffix ;
+         => 5 ;
        </k>
        <store> .Map => ?_ </store>
        <globalEnv> .Map => ?_ </globalEnv>
        <env> .Map => ?_ </env>
-       <nextLoc> 0 => 1 </nextLoc>
+       <nextLoc> 0 => 2 </nextLoc>
 
 endmodule
