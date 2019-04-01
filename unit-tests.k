@@ -2,7 +2,6 @@ module UNIT-TESTS
   imports DAFNY
   syntax Id ::= "i" [token]
               | "j" [token]
-              | "foo" [token]
 
   rule <k> 2 + 2 * 2 => 6 </k>
   rule <k> 3 - 2 => 1 </k>
@@ -49,7 +48,7 @@ module UNIT-TESTS
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
 
-   rule <k> ( method foo:Id (.GIdentTypeList):Formals
+   rule <k> ( method main:Id (.GIdentTypeList):Formals
                 returns (i: int):Formals
                 requires true:Expression
                 ensures true:Expression
@@ -57,7 +56,7 @@ module UNIT-TESTS
                  i := 5 ;
               }
             ):MethodDecl
-         ~> foo ( .ExpressionList ):ArgumentListSuffix ;
+         ~> execute
          => 5 ;
        </k>
        <store> .Map => ?_ </store>
