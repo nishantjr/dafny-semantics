@@ -150,9 +150,9 @@ Method invocation is lambda application:
   rule <k> SetEnv(M) => . ... </k>
        <env> _ => M </env>
 
-  syntax K ::= "Return" "(" GIdentTypeList "!" Map ")" // Return and store old environment atomically
+  syntax K ::= "#return" "(" GIdentTypeList "!" Map ")" // Return and store old environment atomically
 
-  rule <k> Return((X:Id : TYPE):IdentType, .GIdentTypeList ! M) => S[ENV[X]] ... </k>
+  rule <k> #return((X:Id : TYPE):IdentType, .GIdentTypeList ! M) => S[ENV[X]] ... </k>
        <env> ENV => M </env>
        <store> S </store>      
 
@@ -161,7 +161,7 @@ Method invocation is lambda application:
         ~> #declareVarsForArgs(PARAMS ! VALUES)
         ~> #declareVarsForReturns(RETURNS)
         ~> STMTS
-        ~> Return(RETURNS ! ENV)
+        ~> #return(RETURNS ! ENV)
            ...
        </k>
        <env> ENV </env>
