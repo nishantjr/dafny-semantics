@@ -13,6 +13,12 @@ module UNIT-TESTS
   rule <k> 1 < 2 => true </k>
   rule <k> 2 < 1 => false </k>
 
+  rule <k> 1 == 2 => false </k>
+  rule <k> 2 == 2 => true </k>
+  rule <k> 1 == true </k>  // Should stay stuck
+  rule <k> 1 != 2 => true </k>
+  rule <k> 2 != 2 => false </k>
+
   rule <k> var i : int ;
            i := i + 1 ;
            i := i + i ;
