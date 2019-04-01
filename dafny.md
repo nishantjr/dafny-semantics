@@ -142,23 +142,37 @@ and `ensures` clauses.
        <nextLoc> L => L +Int 1 </nextLoc>
 ```
 
-Return and restore old environment atomically:
+`#setEnv`
 
 ```k
-  syntax K ::= "#return" "(" GIdentTypeList "!" Map ")"
+  syntax K ::= #setEnv(Map)
+  rule <k> #setEnv(M) => . ... </k>
+       <env> _ => M </env>
+```
 
-  rule <k> #return((X:Id : TYPE):IdentType, .GIdentTypeList ! M) => S[ENV[X]] ... </k>
-       <env> ENV => M </env>
-       <store> S </store>
+`#return` restores the old environment and places the return value at the top
+of the `<k>` cell.
 
-  rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList )
-        => #declareVarsForArgs(PARAMS ! VALUES)
-        ~> #declareVarsForReturns(RETURNS)
-        ~> STMTS
-        ~> #return(RETURNS ! ENV)
+```k
+  syntax K ::= "#return" "(" Expression "!" Map ")" [strict(1)]
+  rule <k> #return(E:ValueExpression ! ENV)
+        => #setEnv(ENV) ~> E
            ...
        </k>
-       <env> ENV => GENV </env>
+```
+
+Lambda application:
+
+```k
+  rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList )
+        => #setEnv(GENV)
+        ~> #declareVarsForArgs(PARAMS ! VALUES)
+        ~> #declareVarsForReturns(RETURNS)
+        ~> STMTS
+        ~> #return(#returnsToExpression(RETURNS) ! ENV)
+           ...
+       </k>
+       <env> ENV </env>
        <globalEnv> GENV </globalEnv>
 
   syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
@@ -177,9 +191,17 @@ Return and restore old environment atomically:
   rule #declareVarsForReturns ( (X:Id : TYPE):IdentType, ITs )
     => var X : TYPE ;
        #declareVarsForReturns(ITs)
-
   rule #declareVarsForReturns(.GIdentTypeList) => .StmtList
+```
 
+```k
+  syntax Expression ::= "#returnsToExpression" "(" GIdentTypeList ")" [function]
+  syntax ValueExpression ::= "#emptyReturn"
+  rule #returnsToExpression( .GIdentTypeList )
+    => #emptyReturn
+  rule #returnsToExpression( (X:Id : TYPE) , .GIdentTypeList )
+    => X
+  // TODO: otherwise return parensExpression
 ```
 
 Expressions
@@ -219,7 +241,7 @@ Statements
   rule <k> .StmtList => .K ... </k>
 
   // BlockStmt
-  rule <k> { Ss } => Ss ~> SetEnv(ENV) ... </k>
+  rule <k> { Ss } => Ss ~> #setEnv(ENV) ... </k>
        <env> ENV </env>
 
   // VarDeclStmt
