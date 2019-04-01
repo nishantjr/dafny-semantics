@@ -141,15 +141,6 @@ and `ensures` clauses.
        <nextLoc> L => L +Int 1 </nextLoc>
 ```
 
-Method invocation is lambda application:
-
-```k
-  syntax K ::= SetEnv(Map)
-
-  rule <k> SetEnv(M) => . ... </k>
-       <env> _ => M </env>
-```
-
 Return and restore old environment atomically:
 
 ```k
@@ -160,8 +151,7 @@ Return and restore old environment atomically:
        <store> S </store>
 
   rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList )
-        => SetEnv(GENV)
-        ~> #declareVarsForArgs(PARAMS ! VALUES)
+        => #declareVarsForArgs(PARAMS ! VALUES)
         ~> #declareVarsForReturns(RETURNS)
         ~> STMTS
         ~> #return(RETURNS ! ENV)
