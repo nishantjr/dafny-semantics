@@ -102,6 +102,7 @@ module DAFNY
   syntax KItem ::= "#error" "(" String ")"
 
   syntax ValueExpression
+  syntax Expression ::= ValueExpression
   syntax KResult ::= ValueExpression
 ```
 
