@@ -136,7 +136,6 @@ and `ensures` clauses.
   syntax ConstAtomExpression ::= LambdaExpression
   syntax ValueExpression ::= LambdaExpression
   rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
-       <env> Env => Env[MNAME <- L] </env>
        <globalEnv> Env => Env[MNAME <- L ] </globalEnv>
        <store> ... .Map => L |-> #lambda(PARAMS, RETURNS, STMTS) ... </store>
        <nextLoc> L => L +Int 1 </nextLoc>
@@ -164,7 +163,7 @@ Method invocation is lambda application:
         ~> #return(RETURNS ! ENV)
            ...
        </k>
-       <env> ENV </env>
+       <env> ENV => GENV </env>
        <globalEnv> GENV </globalEnv>
 
   syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
