@@ -113,12 +113,12 @@ Execution
   rule <k> .TopDeclList => .K ... </k>
 ```
 
-Execution begins with a call to `main()`:
+Execution begins with a call to `Main()`:
 
 ```k
   syntax KItem ::= "execute"
-  syntax Id ::= "main" [token]
-  rule <k> execute => main (.ExpressionList) ; ... </k>
+  syntax Id ::= "Main" [token]
+  rule <k> execute => Main (.ExpressionList) ; ... </k>
        <env> .Map => GENV </env>
        <globalEnv> GENV:Map </globalEnv>
 ```

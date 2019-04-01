@@ -48,7 +48,7 @@ module UNIT-TESTS
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
 
-   rule <k> ( method main:Id (.GIdentTypeList):Formals
+   rule <k> ( method Main:Id (.GIdentTypeList):Formals
                 returns (i: int):Formals
                 requires true:Expression
                 ensures true:Expression
