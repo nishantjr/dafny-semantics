@@ -19,18 +19,19 @@ from kninja import *
 # =====
 
 proj = KProject(extdir = extdir)
-def build_dafny(backend, flags = ''):
-    return proj.definition( alias         = 'dafny-' + backend
+def build_dafny(backend, alias, flags = ''):
+    return proj.definition( alias         = alias
                           , backend       = backend
                           , main          = 'dafny.md'
                           , directory     = proj.builddir('defn', backend)
-                          , flags         = flags
+                          , flags         = '--syntax-module DAFNY ' + flags
                           )
 
-dafny_java = build_dafny(backend = 'java')
-dafny_ocaml = build_dafny(backend = 'ocaml', flags = '-O3 --non-strict')
+ocaml_exec = build_dafny(backend = 'ocaml', alias = 'dafny-ocaml-exec')
+java_exec  = build_dafny(backend = 'java', alias = 'dafny-java-exec', flags = '-O3 --non-strict')
 
-dafny_java.tests(glob = 't/*.dfy', expected = 't/expected')
-dafny_java.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+ocaml_exec.tests(glob = 't/*.dfy', expected = 't/expected')
+java_exec.tests(glob = 't/*.dfy', expected = 't/expected')
+java_exec.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
 proj.main()

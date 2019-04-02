@@ -1,21 +1,16 @@
 Loosely based on https://github.com/Microsoft/dafny/raw/master/Docs/DafnyRef/out/DafnyRef.pdf
 
 ```k
-module DAFNY-SYNTAX
-  imports DAFNY-COMMON
-  imports ID-PROGRAM-PARSING
-endmodule
-
-module DAFNY-COMMON
-  imports ID-SYNTAX
+module DAFNY-BASE-SYNTAX
   imports INT-SYNTAX
   imports BOOL
 
   // tokens
+  syntax NoUSIdent
   syntax WildIdent ::= NoUSIdent
-  syntax NoUSIdent ::= Id // TODO: Fixme
-  syntax Ident ::= Id // TODO: Fixme
+  syntax Ident ::= NoUSIdent
   syntax NameSegment ::= Ident
+  syntax NoUSIdent ::= r"[a-zA-Z][a-zA-Z0-9_]*" [token, avoid] // TODO: This is incomplete
 
   syntax Suffix ::= ArgumentListSuffix
   syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix), strict(1)]
@@ -91,12 +86,13 @@ module DAFNY-COMMON
 endmodule
 
 module DAFNY
-  imports DAFNY-COMMON
+  imports DAFNY-BASE-SYNTAX
   imports MAP
   imports INT
+  imports STRING-SYNTAX
 
   configuration <T>
-                  <k> $PGM:Pgm ~> execute </k>
+                  <k> $PGM:Pgm ~> execute ~> clear </k>
                   <globalEnv> .Map </globalEnv>
                   <env> .Map </env>
                   <store> .Map </store>
@@ -121,7 +117,7 @@ Execution begins with a call to `Main()`:
 
 ```k
   syntax KItem ::= "execute"
-  syntax Id ::= "Main" [token]
+  syntax NoUSIdent ::= "Main" [token]
   rule <k> execute => Main (.ExpressionList) ; ... </k>
        <env> .Map => GENV </env>
        <globalEnv> GENV:Map </globalEnv>
@@ -205,7 +201,7 @@ Lambda application:
     requires isKResult(VALUES)
 
   syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
-  rule #declareVarsForArgs( (X:Id : TYPE):IdentType, ITs
+  rule #declareVarsForArgs( (X:NoUSIdent : TYPE):IdentType, ITs
                           ! VAL , VALs:ExpressionList
                           )
     => var X : TYPE ;
@@ -217,7 +213,7 @@ Lambda application:
     => .StmtList
 
   syntax StmtList ::= "#declareVarsForReturns" "(" GIdentTypeList ")" [function]
-  rule #declareVarsForReturns ( (X:Id : TYPE):IdentType, ITs )
+  rule #declareVarsForReturns ( (X:NoUSIdent : TYPE):IdentType, ITs )
     => var X : TYPE ;
        #declareVarsForReturns(ITs)
   rule #declareVarsForReturns(.GIdentTypeList) => .StmtList
@@ -228,7 +224,7 @@ Lambda application:
   syntax ValueExpression ::= "#emptyReturn"
   rule #returnsToExpression( .GIdentTypeList )
     => #emptyReturn
-  rule #returnsToExpression( (X:Id : TYPE) , .GIdentTypeList )
+  rule #returnsToExpression( (X:NoUSIdent : TYPE) , .GIdentTypeList )
     => X
   // TODO: otherwise return parensExpression
 ```
@@ -255,10 +251,10 @@ Expressions
   rule <k> (E, .ExpressionList):ParensExpression => E ... </k>
 
   // Variable lookup
-  rule <k> X:Ident => V ... </k>
+  rule <k> X:NoUSIdent => V ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> V ... </store>
-  rule <k> X:Ident => #error("Undefined variable") ~> X ... </k>
+  rule <k> X:NoUSIdent => #error("Undefined variable") ~> X ... </k>
        <env> ENV:Map </env>
     requires notBool X in_keys(ENV)
 ```
@@ -281,10 +277,10 @@ Statements
        <nextLoc> L => L +Int 1 </nextLoc>
 
   // UpdateStmt
-  rule <k> X:Ident := V:ValueExpression ; => .K ... </k>
+  rule <k> X:NoUSIdent := V:ValueExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
-  rule <k> X:Ident := V:ValueExpression ; => .K ... </k>
+  rule <k> X:NoUSIdent := V:ValueExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
 
