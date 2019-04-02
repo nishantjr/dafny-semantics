@@ -8,6 +8,11 @@ module UNIT-TESTS
   rule <k> 1 / 0 => #error("Division by zero") ~> 1 / 0 </k>
   rule <k> 1 / 2 => 0 </k>
   rule <k> 1 / 2 / 3 => 0 </k>
+  rule <k> 1 % 0 => #error("Division by zero") ~> 1 % 0 </k>
+  rule <k> 18 % 3 => 0 </k>
+  rule <k>  2 % 3 => 2 </k>
+  rule <k> -2 % 3 => 1 </k>
+
   rule <k> 2 + (2 + 2) => 6 </k>
   rule <k> 2 / (2 / 3) => #error("Division by zero") ~> 2 / 0 </k>
   rule <k> 1 < 2 => true </k>

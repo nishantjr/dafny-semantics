@@ -16,6 +16,7 @@ module DAFNY-COMMON
   syntax NoUSIdent ::= Id // TODO: Fixme
   syntax Ident ::= Id // TODO: Fixme
   syntax NameSegment ::= Ident
+
   syntax Suffix ::= ArgumentListSuffix
   syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix), strict(1)]
 
@@ -95,7 +96,7 @@ module DAFNY
   imports INT
 
   configuration <T>
-                  <k> $PGM:Pgm ~> execute ~> clear </k>
+                  <k> $PGM:Pgm ~> execute </k>
                   <globalEnv> .Map </globalEnv>
                   <env> .Map </env>
                   <store> .Map </store>
@@ -240,9 +241,10 @@ Expressions
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
-  rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
-    requires I2 =/=Int 0
-  rule <k> I1:Int / 0 => #error("Division by zero") ~> I1:Int / 0 ... </k>
+  rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k> requires I2 =/=Int 0
+  rule <k> I1:Int / 0 => #error("Division by zero") ~> I1 / 0 ... </k>
+  rule <k> I1:Int % I2:Int => I1 modInt I2 ... </k> requires I2 =/=Int 0
+  rule <k> I1:Int % 0 => #error("Division by zero") ~> I1 % 0 ... </k>
 
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
   rule <k> I1:Int == I2:Int => I1 ==Int I2 ... </k>
