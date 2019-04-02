@@ -146,7 +146,6 @@ Declaring a method adds it as a lambda to the store. This drops the `requires`
 and `ensures` clauses.
 
 ```k
-  syntax KItem ::= "#Test"
   syntax LambdaExpression ::= #lambda(Formals, Formals, BlockStmt)
   syntax ConstAtomExpression ::= LambdaExpression
   syntax ValueExpression ::= LambdaExpression
