@@ -2,7 +2,6 @@ method sum(n : nat) returns ( r : nat)
   ensures r == n * (n + 1) / 2
 {
   r := partialsum(n, 0);
-//  print(r);
 }
 
 method partialsum(n: nat, p: nat) returns (r : nat)
@@ -18,6 +17,7 @@ method partialsum(n: nat, p: nat) returns (r : nat)
 method Main() returns ()
   ensures true
 {
-  var r : nat;
-  r := sum(5);
+  assert(sum(5) == 15);
+  assert(sum(4) == 10);
+  assert(sum(0) == 0);
 }

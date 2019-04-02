@@ -1,2 +1,7 @@
 /.build/
 /tmp/
+
+# Dafny build products
+/t/*.exe
+/t/*.dll
+/t/*.mdb

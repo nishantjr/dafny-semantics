@@ -1,10 +1,10 @@
-method main()
+method Main()
   returns (r: int)
   requires true
   ensures true
 {
-  var x : int;
-  r := straightLine(5);
+  assert(straightLine(5) == 11);
+  assert(straightLine(0) == 1);
 }
 
 method straightLine(x: int)

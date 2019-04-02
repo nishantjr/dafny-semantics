@@ -17,7 +17,7 @@ module DAFNY-COMMON
   syntax Ident ::= Id // TODO: Fixme
   syntax NameSegment ::= Ident
   syntax Suffix ::= ArgumentListSuffix
-  syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix)]
+  syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix), strict(1)]
 
   syntax Pgm ::= TopDeclList
   syntax TopDeclList ::= List{TopDecl, ""} [klabel(topDeclList)]
@@ -38,12 +38,14 @@ module DAFNY-COMMON
                 | CallStmt
                 | VarDeclStmt
                 | IfStmt
+                | AssertStmt
   syntax VarDeclStmt ::= "var" IdentType ";"
   syntax UpdateStmt ::= Lhs ":=" Rhs ";" [strict(2)]
   syntax CallStmt ::= Rhs ";" [strict]
   syntax IfStmt ::= "if" Guard BlockStmt
                     "else" BlockStmt [strict(1)]
   syntax Guard ::= Expression
+  syntax AssertStmt ::= "assert" Expression ";" [strict(1)]
 
   syntax Lhs ::= NameSegment
   syntax Rhs ::= Expression
@@ -53,7 +55,7 @@ module DAFNY-COMMON
                            | "-" UnaryExpression
                            | "!" UnaryExpression
   syntax ConstAtomSuffix ::= ConstAtomExpression
-                           | ConstAtomSuffix Suffix [klabel(caeSuffix), strict(1)]
+                           | ConstAtomSuffix Suffix [klabel(caeSuffix), seqstrict]
   syntax NameSegmentSuffix ::= NameSegment
                              | NameSegmentSuffix Suffix [klabel(nsSuffix)]
   syntax PrimaryExpression ::= ConstAtomSuffix
@@ -72,7 +74,7 @@ module DAFNY-COMMON
   syntax Term ::= Factor
                 | Term AddOp Factor [klabel(addOp), strict(1, 3)]
 
-  syntax ExpressionList ::= List{Expression, ","} [klabel(expressionList)]
+  syntax ExpressionList ::= List{Expression, ","} [klabel(expressionList), seqstrict]
   syntax Expression ::= Expression ";" Expression
                       > RelationalExpression
   syntax RelationalExpression ::= Term
@@ -93,7 +95,7 @@ module DAFNY
   imports INT
 
   configuration <T>
-                  <k> $PGM:Pgm ~> execute </k>
+                  <k> $PGM:Pgm ~> execute ~> clear </k>
                   <globalEnv> .Map </globalEnv>
                   <env> .Map </env>
                   <store> .Map </store>
@@ -122,6 +124,18 @@ Execution begins with a call to `Main()`:
   rule <k> execute => Main (.ExpressionList) ; ... </k>
        <env> .Map => GENV </env>
        <globalEnv> GENV:Map </globalEnv>
+```
+
+After execution we clear the program state. This allows us to have a single
+expected output for all tests.
+
+```k
+  syntax KItem ::= "clear"
+  rule <k> clear => .K ...  </k>
+       <env> _ => .K </env>
+       <globalEnv> _ => .K </globalEnv>
+       <store> _ => .K </store>
+       <nextLoc> _ => -1 </nextLoc>
 ```
 
 Methods: Declaration and calls
@@ -164,6 +178,20 @@ of the `<k>` cell.
 Lambda application:
 
 ```k
+  syntax ResultArgumentListSuffix
+  syntax ArgumentListSuffix ::= ResultArgumentListSuffix
+  syntax KResult ::= ResultArgumentListSuffix
+  rule isResultArgumentListSuffix(argListSuffix(VL:ValueList)) => true
+
+  syntax ValueList
+  syntax ExpressionList ::= ValueList
+  syntax KResult ::= ValueList
+  rule isValueList(expressionList(V:ValueExpression, Vs:ValueList))
+    => true
+  rule isValueList(.ExpressionList) => true
+```
+
+```k
   rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList )
         => #setEnv(GENV)
         ~> #declareVarsForArgs(PARAMS ! VALUES)
@@ -174,6 +202,7 @@ Lambda application:
        </k>
        <env> ENV </env>
        <globalEnv> GENV </globalEnv>
+    requires isKResult(VALUES)
 
   syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
   rule #declareVarsForArgs( (X:Id : TYPE):IdentType, ITs
@@ -251,16 +280,22 @@ Statements
        <nextLoc> L => L +Int 1 </nextLoc>
 
   // UpdateStmt
-  rule <k> X:Ident := V:ConstAtomExpression ; => .K ... </k>
+  rule <k> X:Ident := V:ValueExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
-  rule <k> X:Ident := V:ConstAtomExpression ; => .K ... </k>
+  rule <k> X:Ident := V:ValueExpression ; => .K ... </k>
        <env> ... X |-> L ... </env>
        <store> ... L |-> (Z => V) ... </store>
+
+  // CallStmt
+  rule <k> E:ValueExpression ; => .K ... </k>
 
   // IfStmt
   rule <k> if true  S1 else S2 => S1 ... </k>
   rule <k> if false S1 else S2 => S2 ... </k>
+  
+  // AssertStmt
+  rule <k> assert true ; => .K ... </k>
 ```
 
 ```k

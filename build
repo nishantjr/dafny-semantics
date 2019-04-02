@@ -30,7 +30,7 @@ def build_dafny(backend, flags = ''):
 dafny_java = build_dafny(backend = 'java')
 dafny_ocaml = build_dafny(backend = 'ocaml', flags = '-O3 --non-strict')
 
-dafny_java.tests(glob = 't/*.dfy')
+dafny_java.tests(glob = 't/*.dfy', expected = 't/expected')
 dafny_java.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
 proj.main()
