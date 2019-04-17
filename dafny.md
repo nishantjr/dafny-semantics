@@ -1,298 +1,115 @@
-Loosely based on https://github.com/Microsoft/dafny/raw/master/Docs/DafnyRef/out/DafnyRef.pdf
-
 ```k
-module DAFNY-BASE-SYNTAX
-  imports INT-SYNTAX
-  imports BOOL
-
-  // tokens
-  syntax NoUSIdent
-  syntax WildIdent ::= NoUSIdent
-  syntax Ident ::= NoUSIdent
-  syntax NameSegment ::= Ident
-  syntax NoUSIdent ::= r"[a-zA-Z][a-zA-Z0-9_]*" [token, avoid] // TODO: This is incomplete
-
-  syntax Suffix ::= ArgumentListSuffix
-  syntax ArgumentListSuffix ::= "(" ExpressionList ")" [klabel(argListSuffix), strict(1)]
-
-  syntax Pgm ::= TopDeclList
-  syntax TopDeclList ::= List{TopDecl, ""} [klabel(topDeclList)]
-  syntax TopDecl ::= MethodDecl
-  syntax MethodDecl ::= "method" MethodName Formals "returns" Formals
-                            MethodSpec
-                            BlockStmt
-  syntax MethodName ::= NoUSIdent
-  syntax Formals ::= "(" GIdentTypeList ")"
-  syntax IdentType ::= WildIdent ":" Type
-  syntax GIdentType ::= "ghost" IdentType
-                      | IdentType
-  syntax GIdentTypeList ::= List{GIdentType, ","} [klabel(gIdentTypeList)]
-  syntax BlockStmt ::= "{" StmtList "}"
-  syntax StmtList ::= List{Stmt, ""} [klabel(stmtList)]
-  syntax Stmt ::= BlockStmt
-                | UpdateStmt
-                | CallStmt
-                | VarDeclStmt
-                | IfStmt
-                | AssertStmt
-  syntax VarDeclStmt ::= "var" IdentType ";"
-  syntax UpdateStmt ::= Lhs ":=" Rhs ";" [strict(2)]
-  syntax CallStmt ::= Rhs ";" [strict]
-  syntax IfStmt ::= "if" Guard BlockStmt
-                    "else" BlockStmt [strict(1)]
-  syntax Guard ::= Expression
-  syntax AssertStmt ::= "assert" Expression ";" [strict(1)]
-
-  syntax Lhs ::= NameSegment
-  syntax Rhs ::= Expression
-
-  syntax Type ::= "bool" | "int" | "nat"
-  syntax UnaryExpression ::= PrimaryExpression
-                           | "-" UnaryExpression
-                           | "!" UnaryExpression
-  syntax ConstAtomSuffix ::= ConstAtomExpression
-                           | ConstAtomSuffix Suffix [klabel(caeSuffix), seqstrict]
-  syntax NameSegmentSuffix ::= NameSegment
-                             | NameSegmentSuffix Suffix [klabel(nsSuffix)]
-  syntax PrimaryExpression ::= ConstAtomSuffix
-                             | NameSegment
-  syntax ParensExpression ::= "(" ExpressionList ")" [klabel(parensExpression)]
-
-  syntax ConstAtomExpression ::= LiteralExpression
-                               | ParensExpression
-                               | NameSegment
-
-  syntax LiteralExpression ::= Int | Bool | "null"
-  syntax MulOp ::= "*" | "/" | "%"
-  syntax Factor ::= Factor MulOp UnaryExpression [klabel(mulOp), strict(1, 3)]
-                  | UnaryExpression
-  syntax AddOp ::= "+" | "-"
-  syntax Term ::= Factor
-                | Term AddOp Factor [klabel(addOp), strict(1, 3)]
-
-  syntax ExpressionList ::= List{Expression, ","} [klabel(expressionList), seqstrict]
-  syntax Expression ::= Expression ";" Expression
-                      > RelationalExpression
-  syntax RelationalExpression ::= Term
-                                | Term RelOp Term [klabel(relOp), strict(1, 3)]
-  syntax RelOp ::= "==" | "<" | ">" | "<=" | ">=" | "!="
-
-  syntax RequiresClause ::= "requires" Expression
-  syntax EnsuresClause ::= "ensures" Expression
-
-  syntax MethodSpec ::= MethodSpec MethodSpec
-  syntax MethodSpec ::= RequiresClause
-                      | EnsuresClause
-endmodule
-
 module DAFNY
-  imports DAFNY-BASE-SYNTAX
-  imports MAP
+  imports BOOL
   imports INT
-  imports STRING-SYNTAX
+  imports MAP
 
-  configuration <T>
-                  <k> $PGM:Pgm ~> execute ~> clear </k>
-                  <globalEnv> .Map </globalEnv>
-                  <env> .Map </env>
-                  <store> .Map </store>
-                  <nextLoc> 0 </nextLoc>
-                </T>
-  syntax KItem ::= "#error" "(" String ")"
+  syntax ArgDecls ::= List{ArgDecl, ","}    [klabel(ArgDecls)]
+  syntax ArgDecl ::= Id ":" Type
+  syntax Type ::= "int"
 
-  syntax ValueExpression
-  syntax Expression ::= ValueExpression
-  syntax KResult ::= ValueExpression
+  syntax Id ::= r"[a-z][a-z]*" [token]
+              | "i" | "x" | "r"
+  syntax Exp ::= ResultExp
+               | Id
+               | "(" Exp ")" [bracket]
+  syntax KResult ::= ResultExp
+
+  configuration <k> $PGM:Main </k>
+                <store> .Map </store>
+                <env> .Map </env>
+                <nextLoc> 0 </nextLoc>
 ```
 
-Execution
----------
+Main method:
 
 ```k
-  rule <k> T Ts:TopDeclList => T ~> Ts ... </k>
-  rule <k> .TopDeclList => .K ... </k>
+  syntax Main ::= "method" "Main" "(" ArgDecls ")"
+                  "returns" "(" ArgDecls ")"
+                  "requires" Exp
+                  "ensures" Exp
+                  "{" Statements "}"
+  rule (method Main (ARGS) returns (RETS) requires REQS ensures ENSURES { STMTS }):Main
+    => #declareArgs(ARGS)
+    ~> #declareArgs(RETS)
+    ~> assume(REQS);
+    ~> STMTS
+    ~> assert(ENSURES);
+
+  syntax K ::= "#declareArgs" "(" ArgDecls ")" [function]
+  rule #declareArgs(.ArgDecls) => .K
+  rule #declareArgs(X:Id : T)  => var X : T ;
+  rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
 ```
 
-Execution begins with a call to `Main()`:
+Arithmetic expression:
 
 ```k
-  syntax KItem ::= "execute"
-  syntax NoUSIdent ::= "Main" [token]
-  rule <k> execute => Main (.ExpressionList) ; ... </k>
-       <env> .Map => GENV </env>
-       <globalEnv> GENV:Map </globalEnv>
-```
-
-After execution we clear the program state. This allows us to have a single
-expected output for all tests.
-
-```k
-  syntax KItem ::= "clear"
-  rule <k> clear => .K ...  </k>
-       <env> _ => .K </env>
-       <globalEnv> _ => .K </globalEnv>
-       <store> _ => .K </store>
-       <nextLoc> _ => -1 </nextLoc>
-```
-
-Methods: Declaration and calls
-------------------------------
-
-TODO: We assume all methods are top-level.
-Declaring a method adds it as a lambda to the store. This drops the `requires`
-and `ensures` clauses.
-
-```k
-  syntax LambdaExpression ::= #lambda(Formals, Formals, BlockStmt)
-  syntax ConstAtomExpression ::= LambdaExpression
-  syntax ValueExpression ::= LambdaExpression
-  rule <k> method MNAME PARAMS returns RETURNS SPEC STMTS => .K ... </k>
-       <globalEnv> Env => Env[MNAME <- L ] </globalEnv>
-       <store> ... .Map => L |-> #lambda(PARAMS, RETURNS, STMTS) ... </store>
-       <nextLoc> L => L +Int 1 </nextLoc>
-```
-
-`#setEnv`
-
-```k
-  syntax K ::= #setEnv(Map)
-  rule <k> #setEnv(M) => . ... </k>
-       <env> _ => M </env>
-```
-
-`#return` restores the old environment and places the return value at the top
-of the `<k>` cell.
-
-```k
-  syntax K ::= "#return" "(" Expression "!" Map ")" [strict(1)]
-  rule <k> #return(E:ValueExpression ! ENV)
-        => #setEnv(ENV) ~> E
-           ...
-       </k>
-```
-
-Lambda application:
-
-```k
-  syntax ResultArgumentListSuffix
-  syntax ArgumentListSuffix ::= ResultArgumentListSuffix
-  syntax KResult ::= ResultArgumentListSuffix
-  rule isResultArgumentListSuffix(argListSuffix(VL:ValueList)) => true
-
-  syntax ValueList
-  syntax ExpressionList ::= ValueList
-  syntax KResult ::= ValueList
-  rule isValueList(expressionList(V:ValueExpression, Vs:ValueList))
-    => true
-  rule isValueList(.ExpressionList) => true
-```
-
-```k
-  rule <k> #lambda((PARAMS:GIdentTypeList), (RETURNS:GIdentTypeList), STMTS) ( VALUES:ExpressionList )
-        => #setEnv(GENV)
-        ~> #declareVarsForArgs(PARAMS ! VALUES)
-        ~> #declareVarsForReturns(RETURNS)
-        ~> STMTS
-        ~> #return(#returnsToExpression(RETURNS) ! ENV)
-           ...
-       </k>
-       <env> ENV </env>
-       <globalEnv> GENV </globalEnv>
-    requires isKResult(VALUES)
-
-  syntax StmtList ::= "#declareVarsForArgs" "(" GIdentTypeList "!" ExpressionList ")" [function]
-  rule #declareVarsForArgs( (X:NoUSIdent : TYPE):IdentType, ITs
-                          ! VAL , VALs:ExpressionList
-                          )
-    => var X : TYPE ;
-       X := VAL ;
-       #declareVarsForArgs( ITs
-                          ! VALs
-                          )
-  rule #declareVarsForArgs(.GIdentTypeList ! .ExpressionList)
-    => .StmtList
-
-  syntax StmtList ::= "#declareVarsForReturns" "(" GIdentTypeList ")" [function]
-  rule #declareVarsForReturns ( (X:NoUSIdent : TYPE):IdentType, ITs )
-    => var X : TYPE ;
-       #declareVarsForReturns(ITs)
-  rule #declareVarsForReturns(.GIdentTypeList) => .StmtList
-```
-
-```k
-  syntax Expression ::= "#returnsToExpression" "(" GIdentTypeList ")" [function]
-  syntax ValueExpression ::= "#emptyReturn"
-  rule #returnsToExpression( .GIdentTypeList )
-    => #emptyReturn
-  rule #returnsToExpression( (X:NoUSIdent : TYPE) , .GIdentTypeList )
-    => X
-  // TODO: otherwise return parensExpression
-```
-
-Expressions
------------
-
-```k
-  syntax ValueExpression ::= LiteralExpression
+  syntax ResultExp ::= Bool | Int
+  syntax Exp ::= Exp "*" Exp [seqstrict, left]
+               > Exp "+" Exp [seqstrict, left]
+               | Exp "-" Exp [seqstrict]
+               > Exp ">"  Exp [seqstrict]
+               > Exp ">=" Exp [seqstrict]
+               | Exp "<" Exp [seqstrict]
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
-  rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k> requires I2 =/=Int 0
-  rule <k> I1:Int / 0 => #error("Division by zero") ~> I1 / 0 ... </k>
-  rule <k> I1:Int % I2:Int => I1 modInt I2 ... </k> requires I2 =/=Int 0
-  rule <k> I1:Int % 0 => #error("Division by zero") ~> I1 % 0 ... </k>
-
+  rule <k> I1:Int > I2:Int => I1 >Int I2 ... </k>
+  rule <k> I1:Int >= I2:Int => I1 >=Int I2 ... </k>
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
-  rule <k> I1:Int == I2:Int => I1 ==Int I2 ... </k>
-  rule <k> I1:Int != I2:Int => notBool(I1 ==Int I2) ... </k>
-
-  // ParensExpression with a single inner expression reduce to the expression
-  // (otherwise they should reduce to a tuple)
-  rule <k> (E, .ExpressionList):ParensExpression => E ... </k>
-
-  // Variable lookup
-  rule <k> X:NoUSIdent => V ... </k>
-       <env> ... X |-> L ... </env>
-       <store> ... L |-> V ... </store>
-  rule <k> X:NoUSIdent => #error("Undefined variable") ~> X ... </k>
-       <env> ENV:Map </env>
-    requires notBool X in_keys(ENV)
 ```
 
-Statements
-----------
+Variable lookup:
 
 ```k
-  rule <k> S1 S2:StmtList => S1 ~> S2 ... </k>
-  rule <k> .StmtList => .K ... </k>
+  rule <k> X:Id => V ... </k>
+       <env> ... X |-> LOC ... </env>
+       <store> ... LOC |-> V ... </store>
+```
 
-  // BlockStmt
-  rule <k> { Ss } => Ss ~> #setEnv(ENV) ... </k>
-       <env> ENV </env>
+Statements:
 
-  // VarDeclStmt
-  rule <k> var X : TYPE ; => .K ... </k>
-       <env> ... .Map => X |-> L ... </env>
-       <store> ... .Map => L |-> 0 ... </store>
-       <nextLoc> L => L +Int 1 </nextLoc>
+```k
+  syntax Statements ::= List{Statement, ""} [klabel(Statements)]
+  rule S Ss:Statements => S ~> Ss
+  rule .Statements => .K
+```
 
-  // UpdateStmt
-  rule <k> X:NoUSIdent := V:ValueExpression ; => .K ... </k>
-       <env> ... X |-> L ... </env>
-       <store> ... L |-> (Z => V) ... </store>
-  rule <k> X:NoUSIdent := V:ValueExpression ; => .K ... </k>
-       <env> ... X |-> L ... </env>
-       <store> ... L |-> (Z => V) ... </store>
+Assert statement:
 
-  // CallStmt
-  rule <k> E:ValueExpression ; => .K ... </k>
+```k
+  syntax Statement ::= "assert" Exp ";" [strict]
+  syntax KItem ::= "#error"
+  rule assert(true); => .K          [transition]
+  rule assert(false); => #error     [transition]
+```
 
-  // IfStmt
-  rule <k> if true  S1 else S2 => S1 ... </k>
-  rule <k> if false S1 else S2 => S2 ... </k>
-  
-  // AssertStmt
-  rule <k> assert true ; => .K ... </k>
+Assume statement:
+
+```k
+  syntax Statement ::= "assume" Exp ";" [strict]
+  syntax KItem ::= "#error"
+  rule assume(true); => .K          [transition]
+```
+
+Variable declaration:
+
+```k
+  syntax Statement ::= "var" Id ":" Type ";"
+  rule <k> var X : int ; => .K ... </k>
+       <env> .Map => X |-> LOC ... </env>
+       <store> .Map => LOC |-> ?_:Int ... </store>
+       <nextLoc> LOC => LOC +Int 1 </nextLoc>
+```
+
+Update
+
+```k
+  syntax Statement ::= Id ":=" Exp ";" [strict(2)]
+  rule <k> X := V:Int ; => .K ... </k>
+       <env> ... X |-> LOC ... </env>
+       <store> ... LOC |-> (_ => V) ... </store>
 ```
 
 ```k

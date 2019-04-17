@@ -1,23 +1,14 @@
-method sum(n : nat) returns ( r : nat)
-  ensures r == n * (n + 1) / 2
+method Main(n : int) returns (r : int)
+  requires n >= 0
+  ensures  r == n*(n+1) / 2
 {
-  r := partialsum(n, 0);
-}
-
-method partialsum(n: nat, p: nat) returns (r : nat)
-  ensures r == p + n * (n + 1) / 2
-{
-  if (n != 0) {
-    r := partialsum(n - 1, p + n);
-  } else {
-    r := p;
+  var i : int ;
+  r := 0;
+  i := n;
+  while (i > 0)
+    invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
+  {
+    r := r + i;
+    i := i - 1;
   }
-}
-
-method Main() returns ()
-  ensures true
-{
-  assert(sum(5) == 15);
-  assert(sum(4) == 10);
-  assert(sum(0) == 0);
 }

@@ -1,78 +1,95 @@
 module UNIT-TESTS
   imports DAFNY
-  syntax NoUSIdent ::= "i" [token]
-                     | "j" [token]
 
   rule <k> 2 + 2 * 2 => 6 </k>
   rule <k> 3 - 2 => 1 </k>
-  rule <k> 1 / 0 => #error("Division by zero") ~> 1 / 0 </k>
-  rule <k> 1 / 2 => 0 </k>
-  rule <k> 1 / 2 / 3 => 0 </k>
-  rule <k> 1 % 0 => #error("Division by zero") ~> 1 % 0 </k>
-  rule <k> 18 % 3 => 0 </k>
-  rule <k>  2 % 3 => 2 </k>
-  rule <k> -2 % 3 => 1 </k>
+//  rule <k> 1 / 0 => #error ~> 1 / 0 </k>
+//  rule <k> 1 / 2 => 0 </k>
+//  rule <k> 1 / 2 / 3 => 0 </k>
+//  rule <k> 1 % 0 => #error ~> 1 % 0 </k>
+//  rule <k> 18 % 3 => 0 </k>
+//  rule <k>  2 % 3 => 2 </k>
+//  rule <k> -2 % 3 => 1 </k>
 
   rule <k> 2 + (2 + 2) => 6 </k>
-  rule <k> 2 / (2 / 3) => #error("Division by zero") ~> 2 / 0 </k>
+//  rule <k> 2 / (2 / 3) => #error ~> 2 / 0 </k>
   rule <k> 1 < 2 => true </k>
   rule <k> 2 < 1 => false </k>
+  rule <k> 1 > 2 => false </k>
+  rule <k> 2 > 1 => true </k>
 
-  rule <k> 1 == 2 => false </k>
-  rule <k> 2 == 2 => true </k>
-  rule <k> 1 == true </k>  // Should stay stuck
-  rule <k> 1 != 2 => true </k>
-  rule <k> 2 != 2 => false </k>
+  rule <k> 2 + (2 + N:Int) => 4 +Int N</k>
+  rule <k> 2 + (2 + N:Int) > 2 => true </k>
+    requires N >Int 0
+
+//  rule <k> 1 == 2 => false </k>
+//  rule <k> 2 == 2 => true </k>
+//  rule <k> 1 == true </k>  // Should stay stuck
+//  rule <k> 1 != 2 => true </k>
+//  rule <k> 2 != 2 => false </k>
 
   rule <k> var i : int ;
            i := i + 1 ;
            i := i + i ;
         ~> i
-        => 2
+        => N:Int
        </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
+//
+//  rule <k> i => #error("Undefined variable") ~> i ~> ?_ </k>
+//       <store> .Map => ?_ </store>
+//       <env> .Map => ?_ </env>
+//       <nextLoc> 0 </nextLoc>
+//
+//  rule <k> var i : int ;
+//           if 2 < 1 { i := 0 ;   }
+//           else     { i := 100 ; }
+//        ~> i
+//        => 100
+//       </k>
+//       <store> .Map => ?_ </store>
+//       <env> .Map => ?_ </env>
+//       <nextLoc> 0 => 1 </nextLoc>
+//
+//  rule <k> var i : int ;
+//           if 0 < 1 { i := 0 ;   }
+//           else     { i := 100 ; }
+//        ~> i
+//        => 0
+//       </k>
+//       <store> .Map => ?_ </store>
+//       <env> .Map => ?_ </env>
+//       <nextLoc> 0 => 1 </nextLoc>
+//
 
-  rule <k> i => #error("Undefined variable") ~> i ~> ?_ </k>
-       <store> .Map => ?_ </store>
-       <env> .Map => ?_ </env>
-       <nextLoc> 0 </nextLoc>
-
-  rule <k> var i : int ;
-           if 2 < 1 { i := 0 ;   }
-           else     { i := 100 ; }
-        ~> i
-        => 100
-       </k>
-       <store> .Map => ?_ </store>
-       <env> .Map => ?_ </env>
-       <nextLoc> 0 => 1 </nextLoc>
-
-  rule <k> var i : int ;
-           if 0 < 1 { i := 0 ;   }
-           else     { i := 100 ; }
-        ~> i
-        => 0
-       </k>
-       <store> .Map => ?_ </store>
-       <env> .Map => ?_ </env>
-       <nextLoc> 0 => 1 </nextLoc>
-
-   rule <k> ( method Main (.GIdentTypeList):Formals
-                returns (i: int):Formals
-                requires true:Expression
-                ensures true:Expression
+   rule <k> method Main(.ArgDecls)
+                returns (i: int, .ArgDecls)
+                requires true
+                ensures true
               {
                  i := 5 ;
               }
-            ):MethodDecl
-         ~> execute
-         => 5 ;
+         ~> i
+         => 5
        </k>
        <store> .Map => ?_ </store>
-       <globalEnv> .Map => ?_ </globalEnv>
        <env> .Map => ?_ </env>
-       <nextLoc> 0 => 2 </nextLoc>
+       <nextLoc> 0 => ?_ </nextLoc>
+
+   rule <k> method Main(x: int, .ArgDecls)
+                returns (r: int, .ArgDecls)
+                requires true
+                ensures r > 0
+            {
+               r := 2 * x ;
+               r := r * x ;
+            }
+         => #error
+       </k>
+       <store> .Map => ?_ </store>
+       <env> .Map => ?_ </env>
+       <nextLoc> 0 => ?_ </nextLoc>
 
 endmodule
