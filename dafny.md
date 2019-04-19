@@ -47,17 +47,26 @@ Arithmetic expression:
 ```k
   syntax ResultExp ::= Bool | Int
   syntax Exp ::= Exp "*" Exp [seqstrict, left]
+               > Exp "/" Exp [seqstrict, left]
                > Exp "+" Exp [seqstrict, left]
                | Exp "-" Exp [seqstrict]
                > Exp ">"  Exp [seqstrict]
-               > Exp ">=" Exp [seqstrict]
-               | Exp "<" Exp [seqstrict]
+               | Exp ">=" Exp [seqstrict]
+               | Exp "<" Exp  [seqstrict]
+               | Exp "<=" Exp [seqstrict]
+               | Exp "==" Exp [seqstrict]
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
+  rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
+    requires I2 =/=Int 0                          [transition]
+  rule <k> I1:Int / 0 => #error ... </k>          [transition]
+
   rule <k> I1:Int > I2:Int => I1 >Int I2 ... </k>
   rule <k> I1:Int >= I2:Int => I1 >=Int I2 ... </k>
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
+  rule <k> I1:Int <= I2:Int => I1 <=Int I2 ... </k>
+  rule <k> I1:Int == I2:Int => I1 ==Int I2 ... </k>
 ```
 
 Variable lookup:
