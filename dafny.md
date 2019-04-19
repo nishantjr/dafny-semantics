@@ -99,7 +99,8 @@ Assume statement:
 ```k
   syntax Statement ::= "assume" Exp ";" [strict]
   syntax KItem ::= "#error"
-  rule assume(true); => .K          [transition]
+  rule assume(true); => .K                  [transition]
+  rule <k> assume(false); ~> S => .K </k>   [transition]
 ```
 
 Variable declaration:
