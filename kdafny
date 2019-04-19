@@ -24,13 +24,12 @@ def build_dafny(backend, alias, flags = ''):
                           , backend       = backend
                           , main          = 'dafny.md'
                           , directory     = proj.builddir('defn', backend)
-                          , flags         = '--syntax-module DAFNY ' + flags
+                          , kompile_flags = '--syntax-module DAFNY ' + flags
+                          , krun_flags    = '--search-final'
                           )
 
-ocaml_exec = build_dafny(backend = 'ocaml', alias = 'dafny-ocaml-exec', flags = '-O3')
 java_exec  = build_dafny(backend = 'java', alias = 'dafny-java-exec')
 
-ocaml_exec.tests(glob = 't/*.dfy', expected = 't/expected')
 java_exec.tests(glob = 't/*.dfy', expected = 't/expected')
 java_exec.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
