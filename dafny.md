@@ -122,6 +122,14 @@ Update
        <store> ... LOC |-> (_ => V) ... </store>
 ```
 
+if statements
+
+```k
+  syntax Statement ::= "if" "(" Exp ")" "{" Statements "}" [strict(1)]
+  rule <k> if ( true ) { S } => S ... </k>                 [transition]
+  rule <k> if ( false ) { S } => .K ... </k>               [transition]
+```
+
 ```k
 endmodule
 ```
