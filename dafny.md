@@ -9,7 +9,7 @@ module DAFNY
   syntax Type ::= "int"
 
   syntax Id ::= r"[a-z][a-z]*" [token]
-              | "i" | "x" | "r"
+              | "i" | "x" | "r" | "n"
   syntax Exp ::= ResultExp
                | Id
                | "(" Exp ")" [bracket]
@@ -46,7 +46,8 @@ Arithmetic expression:
 
 ```k
   syntax ResultExp ::= Bool | Int
-  syntax Exp ::= Exp "*" Exp [seqstrict, left]
+  syntax Exp ::= "(" Exp ")" [bracket]
+               | Exp "*" Exp [seqstrict, left]
                > Exp "/" Exp [seqstrict, left]
                > Exp "+" Exp [seqstrict, left]
                | Exp "-" Exp [seqstrict]
@@ -55,6 +56,7 @@ Arithmetic expression:
                | Exp "<" Exp  [seqstrict]
                | Exp "<=" Exp [seqstrict]
                | Exp "==" Exp [seqstrict]
+               > Exp "&&" Exp [seqstrict, left]
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
@@ -67,6 +69,9 @@ Arithmetic expression:
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
   rule <k> I1:Int <= I2:Int => I1 <=Int I2 ... </k>
   rule <k> I1:Int == I2:Int => I1 ==Int I2 ... </k>
+
+  rule <k> false && E:Exp => false ... </k>
+  rule <k> true && E:Exp => E ... </k>
 ```
 
 Variable lookup:
@@ -143,8 +148,9 @@ while statements
        </k>
 ```
 
-`#resetVariables` statements: resets all variables in the store. This is needed
-at cutpoints that separate basic paths.
+`#resetVariables` statements: resets all variables in the store to an
+unconstrained symbolic value. This is needed at cutpoints that separate basic
+paths.
 
 ```k
   syntax Statement ::= "#resetVariables" ";" [klabel(resetVariablesStatement)]
