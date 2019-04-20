@@ -130,6 +130,37 @@ if statements
   rule <k> if ( false ) { S } => .K ... </k>               [transition]
 ```
 
+while statements
+
+```k
+  syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
+  rule <k> while (B) invariant INV { S:Statements }
+        => assert(INV) ;
+           #resetVariables ;
+           assume(INV) ;
+           if (B) { S ++Statements (assert (INV) ; assume(false) ; .Statements) }
+           ...
+       </k>
+```
+
+`#resetVariables` statements: resets all variables in the store. This is needed
+at cutpoints that separate basic paths.
+
+```k
+  syntax Statement ::= "#resetVariables" ";" [klabel(resetVariablesStatement)]
+  rule <k> #resetVariables ; => .K ... </k>
+       <store> STORE => #resetVariables(STORE) </store>
+  syntax Map ::= "#resetVariables" "(" Map ")" [function, klabel(resetVariablesHelper)]
+  rule #resetVariables(.Map) => .Map
+  rule #resetVariables((L |-> V) REST) => (L |-> ?_:Int) #resetVariables(REST)
+```
+
+```k
+  syntax Statements ::= Statements "++Statements" Statements [function]
+  rule .Statements ++Statements S => S
+  rule (S1 S1s) ++Statements S2s => S1 (S1s ++Statements S2s)
+```
+
 ```k
 endmodule
 ```
