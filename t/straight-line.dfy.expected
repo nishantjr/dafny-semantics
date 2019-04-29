@@ -1,0 +1,37 @@
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> 2 *Int V0 *Int V0
+      </store>
+      <env>
+        r |-> 1
+        x |-> 0
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >Int 0 ==K true
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> V1
+      </store>
+      <env>
+        r |-> 1
+        x |-> 0
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >Int 0 ==K false

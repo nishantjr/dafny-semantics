@@ -1,0 +1,60 @@
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> 0 -Int V0
+      </store>
+      <env>
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 <=Int 0 ==K true
+  #And
+    V0 >=Int 0 ==K false
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> V0
+      </store>
+      <env>
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 <=Int 0 ==K false
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> V0
+      </store>
+      <env>
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 <=Int 0 ==K true
+  #And
+    V0 >=Int 0 ==K true

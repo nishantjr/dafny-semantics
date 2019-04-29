@@ -1,0 +1,109 @@
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V0
+        1 |-> V1
+      </store>
+      <env>
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K false
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V2
+        1 |-> V3
+        2 |-> V4
+      </store>
+      <env>
+        i |-> 2
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        3
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K true
+  #And
+    V3 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+  #And
+    V3 >=Int 0 ==K false
+  #And
+    V2 >=Int 0 ==K true
+  #And
+    V4 >=Int 0 ==K true
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V2
+        1 |-> V3 +Int V4
+        2 |-> V4 -Int 1
+      </store>
+      <env>
+        i |-> 2
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        3
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K true
+  #And
+    V3 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+  #And
+    V3 >=Int 0 ==K true
+  #And
+    V2 >=Int 0 ==K true
+  #And
+    V4 >=Int 0 ==K true
+  #And
+    V4 >Int 0 ==K true
+#Or
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V2
+        1 |-> V2 *Int ( V2 +Int 1 ) /Int 2
+        2 |-> V4
+      </store>
+      <env>
+        i |-> 2
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        3
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K true
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 >=Int 0 ==K true
+  #And
+    V2 >=Int 0 ==K true
+  #And
+    V4 >=Int 0 ==K true
+  #And
+    V4 >Int 0 ==K false

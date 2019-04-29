@@ -49,6 +49,7 @@ Arithmetic expression:
   syntax Exp ::= "(" Exp ")" [bracket]
                | Exp "*" Exp [seqstrict, left]
                > Exp "/" Exp [seqstrict, left]
+               | Exp "%" Exp [seqstrict, left]
                > Exp "+" Exp [seqstrict, left]
                | Exp "-" Exp [seqstrict]
                > Exp ">"  Exp [seqstrict]
@@ -56,19 +57,24 @@ Arithmetic expression:
                | Exp "<" Exp  [seqstrict]
                | Exp "<=" Exp [seqstrict]
                | Exp "==" Exp [seqstrict]
+               | Exp "!=" Exp [seqstrict]
                > Exp "&&" Exp [seqstrict, left]
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
-    requires I2 =/=Int 0                          [transition]
-  rule <k> I1:Int / 0 => #error ... </k>          [transition]
+    requires I2 =/=Int 0                           [transition]
+  rule <k> I1:Int / 0 => #error ~> I1 / 0 ... </k> [transition]
+  rule <k> I1:Int % I2:Int => I1 modInt I2 ... </k>
+    requires I2 =/=Int 0                           [transition]
+  rule <k> I1:Int % 0 => #error ~> I1 % 0 ... </k> [transition]
 
   rule <k> I1:Int > I2:Int => I1 >Int I2 ... </k>
   rule <k> I1:Int >= I2:Int => I1 >=Int I2 ... </k>
   rule <k> I1:Int < I2:Int => I1 <Int I2 ... </k>
   rule <k> I1:Int <= I2:Int => I1 <=Int I2 ... </k>
   rule <k> I1:Int == I2:Int => I1 ==Int I2 ... </k>
+  rule <k> I1:Int != I2:Int => I1 =/=Int I2 ... </k>
 
   rule <k> false && E:Exp => false ... </k>
   rule <k> true && E:Exp => E ... </k>

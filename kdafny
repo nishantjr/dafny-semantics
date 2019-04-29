@@ -30,7 +30,8 @@ def build_dafny(backend, alias, flags = ''):
 
 java_exec  = build_dafny(backend = 'java', alias = 'dafny-java-exec')
 
-java_exec.tests(glob = 't/*.dfy', expected = 't/expected')
+java_exec.tests(glob = 't/negative/*.dfy')
+java_exec.proofs(glob = 't/positive/*.dfy.k', alias = 'verification')
 java_exec.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
 proj.main()
