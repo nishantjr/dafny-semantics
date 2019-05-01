@@ -1,5 +1,5 @@
 ---
-title: A K Semantics for Dafny Verfication
+title: A $\mathbb{K}$ Semantics for Dafny Verfication
 author: Andrew Miranti & Nishant Rodrigues
 ---
 
