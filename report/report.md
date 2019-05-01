@@ -50,22 +50,25 @@ operational semantics for Dafny using the K Framework.
 
 ## What is K?
 
-The  \K Framework is a rewriting based framework for defining executable semantic specifications of programming languages, type systems and formal analysis tools.
-Given the syntax and semantics of a language,  \K generates a parser, an interpreter, as well as formal methods analysis tools such as a model checker and a deductive verifier.
-This avoids duplication while improving efficiency and consistency.
-For example, using the interpreter, one can test the semantics immediately, which significantly increases the efficiency of and confidence in semantics development.
-The verifier uses the same internal model for verifying programs, and that confidence carries over.
-Verification is discussed in section~\ref{sec:verification} and~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}.
+The \K Framework is a rewriting based framework for defining executable semantic
+specifications of programming languages, type systems and formal analysis tools.
+Given the syntax and semantics of a language, \K generates a parser, an
+interpreter, as well as formal methods analysis tools such as a model checker
+and a deductive verifier. This avoids duplication while improving efficiency and
+consistency. For example, using the interpreter, one can test the semantics
+immediately, which significantly increases the efficiency of and confidence in
+semantics development. The verifier uses the same internal model for verifying
+programs, and that confidence carries over. Verification is discussed in
+section\~\ref{sec:verification}
+and\~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}.
 
-![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview)
+![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
 
 There exists a rich literature on using \K for defining languages, including an online tutorial~\cite{k-tutorial-url}.
  \K has been used to formalize large languages like C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others.
-We will introduce \K by need, as we discuss our formalization of the EVM in the next section.
+We will introduce \K by need, as we discuss our formalization.
 
 ## What is Semantics-first approach
-
-**Background on Operational Semantics / K Framework**
 
 The K Framework is a tool for defining programming languages by writing
 an operational semantics for the language. This operational semantic
