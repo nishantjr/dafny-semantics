@@ -68,22 +68,36 @@ There exists a rich literature on using \K for defining languages, including an 
  \K has been used to formalize large languages like C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others.
 We will introduce \K by need, as we discuss our formalization.
 
-## What is Semantics-first approach
+## Motivation
 
-The K Framework is a tool for defining programming languages by writing
-an operational semantics for the language. This operational semantic
-definition takes the form of a set of syntactic elements of the
-programming language, a configuration encapsulating all of the state and
-context that can impact the execution of a program, and a set of rewrite
-rules. A rewrite rule is a pair of patterns over language constructs,
-including variables over syntax items (such as Ints, Strings, etc that
-may appear in the AST). These rewrite rules can also include parts of
-the language configuration. A rewrite rule contains a pair of these
-patterns, one to match and one to rewrite to. When a rule is applied,
-elements of the rule match with the current configuration of the
-program, assigning values to variables contained in the rules. Once a
-full match is completed, the the right hand side of the rule is used to
-construct the next state of the program using the values for variables
+-   Motivation (Why reimplement dafny in K)
+    -   Semantics-first approach
+    -   Avoids translation to Boogie
+    -   Towards a language-agnostic framework for verification via
+        > invariants
+    -   Xxx something about how rewriting is easy to understand??
+
+## Implementation
+
+### What subset of Dafny do we implement
+
+### Explain a K definition, a few of the rules (main, if, while, assert, #abstract, assume)
+
+The main components of a \K definition are:
+
+1.  a set of syntactic elements of the programming language,
+2.  a configuration encapsulating all of the state and context that can impact
+    the execution of a program,
+3.  and a set of rewrite rules.
+
+A rewrite rule is a pair of patterns over language constructs, including
+variables over syntax items (such as Ints, Strings, etc that may appear in the
+AST). These rewrite rules can also include parts of the language configuration.
+A rewrite rule contains a pair of these patterns, one to match and one to
+rewrite to. When a rule is applied, elements of the rule match with the current
+configuration of the program, assigning values to variables contained in the
+rules. Once a full match is completed, the the right hand side of the rule is
+used to construct the next state of the program using the values for variables
 defined on the left hand side. As an example:
 
 \<k\> S1:Stmt ; Ss:Stmts =\> S1 \~\> Ss \</k\>
@@ -102,16 +116,6 @@ nothing. The sequence of rewrite rule applications from the initial
 state of the program to the final empty state constitutes an execution
 of a program under a K semantics.
 
--   Motivation (Why reimplement dafny in K)
-    -   Semantics-first approach
-    -   Avoids translation to Boogie
-    -   Towards a language-agnostic framework for verification via
-        > invariants
-    -   Xxx something about how rewriting is easy to understand??
--   Implementation
-    -   What subset of Dafny do we implement
-    -   Explain a few of the rules (main, if, while, assert, \#abstract,
-        > assume)
 -   Future work
     -   Expanding the subset of dafny we handle
     -   Sharing a definition for both execution and verification
