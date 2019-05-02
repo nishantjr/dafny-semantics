@@ -46,18 +46,20 @@ verification. \[TODO: Nishant - expand about differences in
 execution/verification?\]. This may also prove a difficulty for
 programmers unfamiliar with verification attempting to debug a Dafny
 program. To remedy these issues, we create an proof of concept
-operational semantics for Dafny using the K Framework.
+operational semantics for Dafny using the \K Framework.
 
-## What is K?
+## What is \K?
 
-The K Framework is a tool for creating executable semantics for programming languages,
-and, from these semantic specifications, generating a variety of formal analysis tools.
-K generates a parser, interpreter, and deductive verifier automatically from a given definition.
-It provides facilities for both concrete and symbolic execution, and debugging tools for
-validating a definition.  Generating these tools from the same ultimate source provides a
-sense of confidence in their consistency and avoids unnecessary duplicate work.  Rewrite rules 
-provide an intuitive and highly expressive language for defining specifications, allowing 
-people without formal logic training to create and verify specifications. [Cite KEVM Paper & K Website as sources]
+The \K Framework is a tool for creating executable semantics for programming
+languages, and, from these semantic specifications, generating a variety of
+formal analysis tools. \K generates a parser, interpreter, and deductive verifier
+automatically from a given definition. It provides facilities for both concrete
+and symbolic execution, and debugging tools for validating a definition.
+Generating these tools from the same ultimate source provides a sense of
+confidence in their consistency and avoids unnecessary duplicate work. Rewrite
+rules provide an intuitive and highly expressive language for defining
+specifications, allowing people without formal logic training to create and
+verify specifications. [Cite KEVM Paper & K Website as sources]
 
 ![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
 
