@@ -42,7 +42,7 @@ automatically generates proofs of a program's correctness and (usually)
 termination \[Cite: Dafny tutorial\]. But the native Dafny tools have
 some significant disadvantages in complexity and language dependence,
 and doubts of the cross validity between Dafny execution and Dafny
-verification. \[Nishant - expand about differences in
+verification. \[TODO: Nishant - expand about differences in
 execution/verification?\]. This may also prove a difficulty for
 programmers unfamiliar with verification attempting to debug a Dafny
 program. To remedy these issues, we create an proof of concept
@@ -50,24 +50,18 @@ operational semantics for Dafny using the K Framework.
 
 ## What is K?
 
-The \K Framework is a rewriting based framework for defining executable semantic
-specifications of programming languages, type systems and formal analysis tools.
-Given the syntax and semantics of a language, \K generates a parser, an
-interpreter, as well as formal methods analysis tools such as a model checker
-and a deductive verifier. This avoids duplication while improving efficiency and
-consistency. For example, using the interpreter, one can test the semantics
-immediately, which significantly increases the efficiency of and confidence in
-semantics development. The verifier uses the same internal model for verifying
-programs, and that confidence carries over. Verification is discussed in
-section\~\ref{sec:verification}
-and\~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}.
+The K Framework is a tool for creating executable semantics for programming languages,
+and, from these semantic specifications, generating a variety of formal analysis tools.
+K generates a parser, interpreter, and deductive verifier automatically from a given definition.
+It provides facilities for both concrete and symbolic execution, and debugging tools for
+validating a definition.  Generating these tools from the same ultimate source provides a
+sense of confidence in their consistency and avoids unnecessary duplicate work.  Rewrite rules 
+provide an intuitive and highly expressive language for defining specifications, allowing 
+people without formal logic training to create and verify specifications. [Cite KEVM Paper & K Website as sources]
 
 ![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
 
-There exists a rich literature on using \K for defining languages, including an online tutorial~\cite{k-tutorial-url}.
- \K has been used to formalize large languages like C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others.
-We will introduce \K by need, as we discuss our formalization.
-
+ K semantics have been created even for languages as large as C, C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others. [TODO: Maybe mention new languages like KEVM itself]
 ## Motivation
 
 -   Motivation (Why reimplement dafny in K)
