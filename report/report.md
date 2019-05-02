@@ -61,7 +61,8 @@ people without formal logic training to create and verify specifications. [Cite 
 
 ![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
 
- K semantics have been created even for languages as large as C, C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others. [TODO: Maybe mention new languages like KEVM itself]
+K semantics have been created even for languages as large as C, C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others. [TODO: Maybe mention new languages like KEVM itself]
+
 ## Motivation
 
 -   Motivation (Why reimplement dafny in K)
