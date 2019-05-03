@@ -84,10 +84,75 @@ TODO: Steal from section 3 from KEVM paper
 
 The main components of a \K definition are:
 
-1.  a set of syntactic elements of the programming language,
-2.  a configuration encapsulating all of the state and context that can impact
+1.  a configuration encapsulating all of the state and context that can impact
     the execution of a program,
-3.  and a set of rewrite rules.
+2.  a set of syntactic elements of the programming language,
+3.  and a set of rewrite "rules" specifying functions and transitions between
+    states.
+
+Program state is represented via a "configuration", defined using an XMLesque notation.
+For our Dafny implementation, we use the following configuration:
+
+```k
+configuration <k> $PGM:Main </k>
+              <store> .Map </store>
+              <env> .Map </env>
+              <nextLoc> 0 </nextLoc>
+```
+
+The `<k>` cell functions as a "main" cell, and is usually used for driving
+computation. It usually contains a stack representing the context within which
+we are executing. When a program starts execution, the `$PGM` variable is
+replaced with the program. During execution, `<store>` cell contains mapping
+between locations (or addresses) and values. The `<store>` cell contains a
+mapping between variables declared at the current position in the program and
+the locations at which their values are stored.
+
+The following statement defines the syntax of Dafny's addition operator:
+
+```k
+  syntax Exp ::= Exp "+" Exp [seqstrict, left]
+```
+
+The `left` attribute marks `+` as left-associative, allowing the parser to resolve
+ambiguities without needing parenthesis. The `seqstrict` attribute
+adds additional rules, causing sub-expressions to be evaluated first, from left
+to right, before evaluate the operator.
+
+```
+  rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
+```
+
+The rule above says that for any program state that has a `<k>` cell with first
+element an expression of the form `I1 + I2` where `I1` and `I2` are `Int`s,
+replace that expression with their sum. Here `+Int` is a builtin operator,
+distinct from `+`, that performs integer addition. Note that the `...` is
+valid \K syntax and indicates that there can be addition constructs within the
+`<k>` cell.
+
+Division is defined similarly, though we make sure to add side conditions
+to take care of division by zero.
+
+```
+  rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
+    requires I2 =/=Int 0                           [transition]
+  rule <k> I1:Int / 0 => #error ~> I1 / 0 ... </k> [transition]
+```
+
+The following, slightly more complicated, snippet defines variable assignment:
+
+```k
+  syntax Statement ::= Id ":=" Exp ";" [strict(2)]
+  rule <k> X := V:Int ; => .K ... </k>
+       <env> ... X |-> LOC ... </env>
+       <store> ... LOC |-> (_ => V) ... </store>
+```
+
+The update statement is defined strict in it's second argument: the `Exp` passed to
+it must be fully evaluated before proceeding. The rule states that whenever
+an update statement is encountered at the top of the `<k>` cell, replace it
+
+--------------------------------------------------------------------------------
 
 A rewrite rule is a pair of patterns over language constructs, including
 variables over syntax items (such as Ints, Strings, etc that may appear in the
