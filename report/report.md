@@ -76,20 +76,20 @@ This project aims to be a first step towards adding language-agnostic static
 checking of invariants and specifiations to \K's repertoire. Currently, while
 \K does provide a deductive program verifier, it requires the user to have a
 non-trivial understanding of both \K and the implementation details of the
-language. While this in itself is useful (and has commercial value), it sets a
-high bar for writing verified software. Dafny provides an easy-to-use, modular
-and scalable approach to verified software development. It does this through
-provding a mechanism for specifying invariants, pre-conditions, and
+language. While this in itself is useful (and has proven commercial value), it
+sets a high bar for writing verified software. Dafny provides an easy-to-use,
+modular and scalable approach to verified software development. It does this
+through provding a mechanism for specifying invariants, pre-conditions, and
 post-conditions via a syntax built in to the language. Static verification of
-these invariants, is however, non-trivial. Dafny implements this via translation of
-each program into another language, Boogie, built specifically for verification.
-Execution of Dafny programs is handled by a completely different code path,
-allowing for divergence between the two. We believe that small (and natural) extensions
-to the \K framework would allow languages developers to implement similar features
-in other languages, all the while using the same implementation for both
-verification and execution. With that goal in mind, this project implements
-a verification specific semantics for Dafny: it can take a program written
-in (a subset of) Dafny, and check partial correctness.
+these invariants, is however, non-trivial. Dafny implements this via translation
+of each program into another language, Boogie, built specifically for
+verification. Execution of Dafny programs is handled by a completely different
+code path, allowing for divergence between the two. We believe that small (and
+natural) extensions to the \K framework would allow languages developers to
+implement similar features in other languages, all the while using the same
+implementation for both verification and execution. With that goal in mind, this
+project implements a verification specific semantics for Dafny: it can take a
+program written in (a subset of) Dafny, and check partial correctness.
 
 ## Implementation
 
@@ -167,9 +167,62 @@ The update statement is defined strict in it's second argument: the `Exp` passed
 it must be fully evaluated before proceeding. The rule states that whenever
 an update statement is encountered at the top of the `<k>` cell, replace it.
 
-- Main, Explain symbolic execution
-    - introduce assert, and assume
-- Explain while
+Assert statements are defined via strictness: the the expression evaluates to
+`true`, then it is a no op, otherwise, the program terminates with an error.
+
+```k
+  syntax Statement ::= "assert" Exp ";" [strict]
+  syntax KItem ::= "#error"
+  rule assert(true); => .K          [transition]
+  rule assert(false); => #error     [transition]
+```
+
+Assume statements are more subtle: if the expresssion evaluates to `true`, then it is
+a no op. If it evaluates to `false`, the program verification terminates successfully.
+
+```k
+  syntax Statement ::= "assume" Exp ";" [strict]
+  rule assume(true); => .K                  [transition]
+  rule <k> assume(false); ~> S => .K </k>   [transition]
+```
+
+\todo{explain how we take advantage of symbolic execution}
+
+Verification of the `Main` method occurs as follows: parameters (both input and output)
+are initialized to fresh symbolic values, via the `#declareArgs` construct.
+We then `assume` that the precondition, defined in the `requires` clause, holds,
+execute the body, and finally assert that the postcondition holds.
+
+```k
+  syntax Main ::= "method" "Main" "(" ArgDecls ")"
+                  "returns" "(" ArgDecls ")"
+                  "requires" Exp
+                  "ensures" Exp
+                  "{" Statements "}"
+  rule method Main (ARGS) returns (RETS)
+          requires REQS
+          ensures ENSURES { STMTS }
+    => #declareArgs(ARGS)
+    ~> #declareArgs(RETS)
+    ~> assume(REQS);
+    ~> STMTS
+    ~> assert(ENSURES);
+```
+
+For while loops, we first assert that the invariant holds initially. Next, the
+`#abstract(INV);` replaces the current state with a fresh symbolic state, such
+that `INV` holds. It then executes `BODY` and asserts that `INV` still holds if
+expression `B` holds. Otherwise, it continues with the rest of the program.
+
+```k
+  syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
+  rule <k> while (B) invariant INV { BODY:Statements }
+        => assert(INV) ;
+           #abstract(INV) ;
+           if (B) { BODY ++Statements (assert (INV) ; assume(false) ; .Statements) }
+           ...
+       </k>
+```
 
 ## Future work
 
@@ -199,7 +252,7 @@ constructs, such as loops, who's execution semantics would involve fixed-points.
 In an ideal world, this verification semantics should be derivable from the
 execution semantics.
 
-```
+```k
 syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
 rule <k> while (B) invariant INV { S }
       => assert(INV) ;
