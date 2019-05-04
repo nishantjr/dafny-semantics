@@ -147,20 +147,20 @@ while statements
   syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
   rule <k> while (B) invariant INV { S:Statements }
         => assert(INV) ;
-           #resetVariables ;
+           #abstract ;
            assume(INV) ;
            if (B) { S ++Statements (assert (INV) ; assume(false) ; .Statements) }
            ...
        </k>
 ```
 
-`#resetVariables` statements: resets all variables in the store to an
+`#abstract` statements: resets all variables in the store to an
 unconstrained symbolic value. This is needed at cutpoints that separate basic
 paths.
 
 ```k
-  syntax Statement ::= "#resetVariables" ";" [klabel(resetVariablesStatement)]
-  rule <k> #resetVariables ; => .K ... </k>
+  syntax Statement ::= "#abstract" ";"
+  rule <k> #abstract ; => .K ... </k>
        <store> STORE => #resetVariables(STORE) </store>
   syntax Map ::= "#resetVariables" "(" Map ")" [function, klabel(resetVariablesHelper)]
   rule #resetVariables(.Map) => .Map
