@@ -29,7 +29,10 @@ Main method:
                   "requires" Exp
                   "ensures" Exp
                   "{" Statements "}"
-  rule (method Main (ARGS) returns (RETS) requires REQS ensures ENSURES { STMTS }):Main
+  rule method Main (ARGS) returns (RETS)
+         requires REQS
+         ensures ENSURES
+       { STMTS }
     => #declareArgs(ARGS)
     ~> #declareArgs(RETS)
     ~> assume(REQS);
@@ -109,7 +112,6 @@ Assume statement:
 
 ```k
   syntax Statement ::= "assume" Exp ";" [strict]
-  syntax KItem ::= "#error"
   rule assume(true); => .K                  [transition]
   rule <k> assume(false); ~> S => .K </k>   [transition]
 ```
@@ -147,20 +149,18 @@ while statements
   syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
   rule <k> while (B) invariant INV { S:Statements }
         => assert(INV) ;
-           #abstract ;
-           assume(INV) ;
+           #abstract(INV) ;
            if (B) { S ++Statements (assert (INV) ; assume(false) ; .Statements) }
            ...
        </k>
 ```
 
-`#abstract` statements: resets all variables in the store to an
-unconstrained symbolic value. This is needed at cutpoints that separate basic
-paths.
+`#abstract(EXP)` statements: resets all variables in the store to symbolic values
+such that `EXP` holds.
 
 ```k
-  syntax Statement ::= "#abstract" ";"
-  rule <k> #abstract ; => .K ... </k>
+  syntax Statement ::= "#abstract" "(" Exp ")" ";"
+  rule <k> #abstract(EXP) ; => assume(EXP) ; ... </k>
        <store> STORE => #resetVariables(STORE) </store>
   syntax Map ::= "#resetVariables" "(" Map ")" [function, klabel(resetVariablesHelper)]
   rule #resetVariables(.Map) => .Map
