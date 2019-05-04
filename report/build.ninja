@@ -1,5 +1,5 @@
 rule pandoc
     command = pandoc $flags -o $out $in
 
-build report.pdf : pandoc report.md
-    flags = --to latex
+build report.pdf : pandoc report.md | references.bib
+    flags = --to latex --filter pandoc-citeproc

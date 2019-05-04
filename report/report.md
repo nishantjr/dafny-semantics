@@ -4,6 +4,9 @@ author:
  - Andrew Miranti
  - Nishant Rodrigues
 header-includes: \usepackage{xcolor}
+reference-section-title: Bibliography
+bibliography: references.bib
+link-citations: true
 ---
 
 \newcommand {\K} {$\mathbb{K}$ }
@@ -22,12 +25,12 @@ Introduction
 
 The Dafny language provides a familiar programming environment to
 developers new to writing automatically verified code. It borrows from
-the imperative and functional styles \[Cite: Dafny website\], augmented
+the imperative and functional styles [@dafny], augmented
 with loop invariants, pre/post-condition annotations, and assert/assume
 statements to specify the correctness properties of a program, and
 assist a mechanical prover in verifying these properties. Dafny
 automatically generates proofs of a program's correctness and (usually)
-termination \[Cite: Dafny tutorial\]. But the native Dafny tools have
+termination [@dafnyTutorial]. But the native Dafny tools have
 some significant disadvantages in complexity and language dependence,
 and doubts of the cross validity between Dafny execution and Dafny
 verification. This may also prove a difficulty for
@@ -52,13 +55,13 @@ replace the reference documentation for that virtual machine
 \todo{is this public?}, while forming the basis for commercial auditing and
 verification efforts. Further, \todo{Citations} complete K semantics exist for
 languages such as C
-\todo{98?}~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi},
-Java\~\cite{bogdanas-rosu-2015-popl} and
-JavaScript\~\cite{park-stefanescu-rosu-2015-pldi}, witness to the scalability of
+\todo{98?}[@ellison2012executable][@hathhorn-ellison-rosu-2015-pldi],
+Java[@bogdanas-rosu-2015-popl] and
+JavaScript[@park-stefanescu-rosu-2015-pldi], witness to the scalability of
 the \K framework to large semantics. The semantics of C++, x86-64 and LLVM are
 also in the works \todo{is LLVM complete?}.
 
-![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
+![The  \K approach as described in [@stefanescu-park-yuwen-li-rosu-2016-oopsla]](k-overview.png)
 
 ## Motivation
 
