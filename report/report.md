@@ -15,28 +15,25 @@ link-citations: true
 Abstract
 ========
 
-In this paper we will present an implementation of verification over a
-fragment of the Dafny programming language in the K Framework.
+In this paper we will present an implementation of verification over a fragment
+of the Dafny programming language in the K Framework. The Dafny language
+provides a familiar programming environment to developers new to writing
+automatically verified code. It borrows from the imperative and functional
+styles [@dafny], augmented with loop invariants, pre/post-condition annotations,
+and assert/assume statements to specify the correctness properties of a program,
+and assist a mechanical prover in verifying these properties. Dafny
+automatically generates proofs of a program's correctness and (usually)
+termination [@dafnyTutorial]. But the native Dafny tools have some significant
+disadvantages in complexity and language dependence, and doubts of the cross
+validity between Dafny execution and Dafny verification. This may also prove a
+difficulty for programmers unfamiliar with verification attempting to debug a
+Dafny program. To remedy these issues, we create an proof of concept operational
+semantics for Dafny using the \K Framework.
 
 Introduction
 ============
 
 ## What is Dafny?
-
-The Dafny language provides a familiar programming environment to
-developers new to writing automatically verified code. It borrows from
-the imperative and functional styles [@dafny], augmented
-with loop invariants, pre/post-condition annotations, and assert/assume
-statements to specify the correctness properties of a program, and
-assist a mechanical prover in verifying these properties. Dafny
-automatically generates proofs of a program's correctness and (usually)
-termination [@dafnyTutorial]. But the native Dafny tools have
-some significant disadvantages in complexity and language dependence,
-and doubts of the cross validity between Dafny execution and Dafny
-verification. This may also prove a difficulty for
-programmers unfamiliar with verification attempting to debug a Dafny
-program. To remedy these issues, we create an proof of concept
-operational semantics for Dafny using the \K Framework.
 
 ## What is \K?
 
@@ -229,6 +226,31 @@ expression `B` holds. Otherwise, it continues with the rest of the program.
        </k>
 ```
 
+## Evaluation
+
+Our current implementation is able to verify sum to n:
+
+```dafny
+method Main(n : int) returns (r : int)
+  requires n >= 0
+  ensures  r == n*(n + 1) / 2
+{
+  var i : int ;
+  r := 0;
+  i := n;
+  while (i > 0)
+    invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
+           && i >= 0 && n >= 0 && r >= 0
+  {
+    r := r + i;
+    i := i - 1;
+  }
+}
+```
+
+Note that we had needed to specify invariants `i >= 0 && n >= 0 && r >= 0`, that
+Microsoft's implementation had been able to infer.
+
 ## Future work
 
 ### Expanding the subset of Dafny we implement
@@ -298,3 +320,5 @@ So, from the same semantics, we can get concrete execution, invariant checking
 as well as infer new invariants.
 
 ## Conclusion
+
+xxx
