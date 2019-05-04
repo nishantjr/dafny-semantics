@@ -15,28 +15,23 @@ link-citations: true
 Abstract
 ========
 
-In this paper we will present an implementation of verification over a
-fragment of the Dafny programming language in the K Framework.
+In this paper we will present an implementation of verification over a fragment
+of the Dafny programming language in the K Framework. The Dafny language
+provides a familiar programming environment to developers new to writing
+automatically verified code. It borrows from the imperative and functional
+styles [@dafny], augmented with loop invariants, pre/post-condition annotations,
+and assert/assume statements to specify the correctness properties of a program,
+and assist a mechanical prover in verifying these properties. Dafny
+automatically generates proofs of a program's correctness and (usually)
+termination [@dafnyTutorial]. But the native Dafny tools have some significant
+disadvantages in complexity and language dependence, and doubts of the cross
+validity between Dafny execution and Dafny verification. This may also prove a
+difficulty for programmers unfamiliar with verification attempting to debug a
+Dafny program. To remedy these issues, we create an proof of concept operational
+semantics for Dafny using the \K Framework.
 
 Introduction
 ============
-
-## What is Dafny?
-
-The Dafny language provides a familiar programming environment to
-developers new to writing automatically verified code. It borrows from
-the imperative and functional styles [@dafny], augmented
-with loop invariants, pre/post-condition annotations, and assert/assume
-statements to specify the correctness properties of a program, and
-assist a mechanical prover in verifying these properties. Dafny
-automatically generates proofs of a program's correctness and (usually)
-termination [@dafnyTutorial]. But the native Dafny tools have
-some significant disadvantages in complexity and language dependence,
-and doubts of the cross validity between Dafny execution and Dafny
-verification. This may also prove a difficulty for
-programmers unfamiliar with verification attempting to debug a Dafny
-program. To remedy these issues, we create an proof of concept
-operational semantics for Dafny using the \K Framework.
 
 ## What is \K?
 
@@ -56,10 +51,9 @@ replace the reference documentation for that virtual machine
 verification efforts. Further, \todo{Citations} complete K semantics exist for
 languages such as C
 \todo{98?}[@ellison2012executable][@hathhorn-ellison-rosu-2015-pldi],
-Java[@bogdanas-rosu-2015-popl] and
-JavaScript[@park-stefanescu-rosu-2015-pldi], witness to the scalability of
-the \K framework to large semantics. The semantics of C++, x86-64 and LLVM are
-also in the works \todo{is LLVM complete?}.
+Java[@bogdanas-rosu-2015-popl] and JavaScript[@park-stefanescu-rosu-2015-pldi],
+witness to the scalability of the \K framework to large semantics. The semantics
+of C++, x86-64 and LLVM are also in the works \todo{is LLVM complete?}.
 
 ![The  \K approach as described in [@stefanescu-park-yuwen-li-rosu-2016-oopsla]](k-overview.png)
 
@@ -71,9 +65,9 @@ expended to derive the tools mentioned above. Since all these tools are derived
 from the same semantics, confidence in the correctness of one tool transfers to
 the others. For example, the \K C semantics has been tested against GCC's test
 suites giving a certain confedence in the correctness of the dedective verifier.
-We often don't have this confidence when using other verifiers, such as VCC
-\todo{Examples, citations}. The JavaScript revealed bugs and divergent behaviour
-in all major JavaScript engines.
+We often don't have this confidence when using other verifiers, such as VCC. The
+JavaScript revealed bugs and divergent behaviour in all major JavaScript
+engines.
 
 This project aims to be a first step towards adding language-agnostic static
 checking of invariants and specifiations to \K's repertoire. Currently, while
@@ -235,6 +229,69 @@ expression `B` holds. Otherwise, it continues with the rest of the program.
        </k>
 ```
 
+## Evaluation
+
+We demonstrate our semantics by verifying a sum-to-N program under the semantics:
+
+```
+method Main(n : int) returns (r : int)
+  requires n >= 0
+  ensures  r == n*(n + 1) / 2
+{
+  var i : int ;
+  r := 0;
+  i := n;
+  while (i > 0)
+    invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
+           && i >= 0 && n >= 0 && r >= 0
+  {
+    r := r + i;
+    i := i - 1;
+  }
+}
+```
+
+This validates under the current version of dafny.  Under our semantics, a program is considered
+validated if all paths of the program rewrite to the empty K cell.  This occurs, here, with K also
+outputting information about the constraints on each path taken by the verifier.  One such output is
+provided below as an example:
+
+```
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V2
+        1 |-> V2 *Int ( V2 +Int 1 ) /Int 2
+        2 |-> V4
+      </store>
+      <env>
+        i |-> 2
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        3
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K true
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 >=Int 0 ==K true
+  #And
+    V2 >=Int 0 ==K true
+  #And
+    V4 >=Int 0 ==K true
+  #And
+    V4 >Int 0 ==K false
+```
+
+Note that we had needed to specify invariants `i >= 0 && n >= 0 && r >= 0`, that
+Microsoft's implementation had been able to infer automatically.
+
 ## Future work
 
 ### Expanding the subset of Dafny we implement
@@ -303,66 +360,6 @@ loop.
 So, from the same semantics, we can get concrete execution, invariant checking
 as well as infer new invariants.
 
-## Evaluation
-
-We demonstrate our semantics by verifying a sum-to-N program under the semantics:
-
-```
-method Main(n : int) returns (r : int)
-  requires n >= 0
-  ensures  r == n*(n + 1) / 2
-{
-  var i : int ;
-  r := 0;
-  i := n;
-  while (i > 0)
-    invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
-           && i >= 0 && n >= 0 && r >= 0
-  {
-    r := r + i;
-    i := i - 1;
-  }
-}
-```
-
-This validates under the current version of dafny.  Under our semantics, a program is considered
-validated if all paths of the program rewrite to the empty K cell.  This occurs, here, with K also
-outputting information about the constraints on each path taken by the verifier.  One such output is
-provided below as an example:
-
-```
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V2
-        1 |-> V2 *Int ( V2 +Int 1 ) /Int 2
-        2 |-> V4
-      </store>
-      <env>
-        i |-> 2
-        n |-> 0
-        r |-> 1
-      </env>
-      <nextLoc>
-        3
-      </nextLoc>
-    </generatedTop>
-  #And
-    V0 >=Int 0 ==K true
-  #And
-    V2 *Int ( V2 +Int 1 ) /Int 2 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
-  #And
-    V2 *Int ( V2 +Int 1 ) /Int 2 >=Int 0 ==K true
-  #And
-    V2 >=Int 0 ==K true
-  #And
-    V4 >=Int 0 ==K true
-  #And
-    V4 >Int 0 ==K false
-```
-
 ## Conclusion
 
-
+\todo{}
