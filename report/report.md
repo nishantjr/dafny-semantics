@@ -1,25 +1,13 @@
 ---
 title: A $\mathbb{K}$ Semantics for Dafny Verfication
-author: Andrew Miranti & Nishant Rodrigues
+author:
+ - Andrew Miranti
+ - Nishant Rodrigues
+header-includes: \usepackage{xcolor}
 ---
 
 \newcommand {\K} {$\mathbb{K}$ }
-
--   Motivation (Why reimplement dafny in K)
-    -   Semantics-first approach
-    -   Avoids translation to Boogie
-    -   Towards a language-agnostic framework for verification via
-        > invariants
-    -   Xxx something about how rewriting is easy to understand??
--   Implementation
-    -   What subset of Dafny do we implement
-    -   Explain a few of the rules (main, if, while, assert, \#abstract,
-        > assume)
--   Future work
-    -   Expanding the subset of dafny we handle
-    -   Sharing a definition for both execution and verification
-    -   Making this language agnostic
-    -   Inferring invariants
+\newcommand {\todo}[1] {{\color{red}TODO: #1}}
 
 Abstract
 ========
@@ -42,8 +30,7 @@ automatically generates proofs of a program's correctness and (usually)
 termination \[Cite: Dafny tutorial\]. But the native Dafny tools have
 some significant disadvantages in complexity and language dependence,
 and doubts of the cross validity between Dafny execution and Dafny
-verification. \[TODO: Nishant - expand about differences in
-execution/verification?\]. This may also prove a difficulty for
+verification. This may also prove a difficulty for
 programmers unfamiliar with verification attempting to debug a Dafny
 program. To remedy these issues, we create an proof of concept
 operational semantics for Dafny using the \K Framework.
@@ -52,35 +39,63 @@ operational semantics for Dafny using the \K Framework.
 
 The \K Framework is a tool for creating executable semantics for programming
 languages, and, from these semantic specifications, generating a variety of
-formal analysis tools. \K generates a parser, interpreter, and deductive verifier
-automatically from a given definition. It provides facilities for both concrete
-and symbolic execution, and debugging tools for validating a definition.
-Generating these tools from the same ultimate source provides a sense of
-confidence in their consistency and avoids unnecessary duplicate work. Rewrite
-rules provide an intuitive and highly expressive language for defining
+formal analysis tools. \K generates a parser, interpreter, and deductive
+verifier automatically from a given definition. It provides facilities for both
+concrete and symbolic execution, and debugging tools for validating a
+definition. Generating these tools from the same ultimate source provides a
+sense of confidence in their consistency and avoids unnecessary duplicate work.
+Rewrite rules provide an intuitive and highly expressive language for defining
 specifications, allowing people without formal logic training to create and
-verify specifications. [Cite KEVM Paper & K Website as sources]
+verify specifications. As a testimony to the readability of \K specifications,
+the KEVM semantics, a formalization of the Ethereum Virtual Machine is slated to
+replace the reference documentation for that virtual machine
+\todo{is this public?}, while forming the basis for commercial auditing and
+verification efforts. Further, \todo{Citations} complete K semantics exist for
+languages such as C
+\todo{98?}~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi},
+Java\~\cite{bogdanas-rosu-2015-popl} and
+JavaScript\~\cite{park-stefanescu-rosu-2015-pldi}, witness to the scalability of
+the \K framework to large semantics. The semantics of C++, x86-64 and LLVM are
+also in the works \todo{is LLVM complete?}.
 
 ![The  \K approach as described in ~\cite{stefanescu-park-yuwen-li-rosu-2016-oopsla}](k-overview.png)
 
-K semantics have been created even for languages as large as C, C~\cite{ellison2012executable}~\cite{hathhorn-ellison-rosu-2015-pldi}, Java~\cite{bogdanas-rosu-2015-popl} and JavaScript~\cite{park-stefanescu-rosu-2015-pldi}, among others. [TODO: Maybe mention new languages like KEVM itself]
-
 ## Motivation
 
--   Motivation (Why reimplement dafny in K)
-    -   Semantics-first approach
-    -   Avoids translation to Boogie
-    -   Towards a language-agnostic framework for verification via
-        > invariants
-    -   Xxx something about how rewriting is easy to understand??
+The \K approach is a semantics-first one. We prescribe to the notion that once a
+formal semantics of a language is defined, little extra effort should be
+expended to derive the tools mentioned above. Since all these tools are derived
+from the same semantics, confidence in the correctness of one tool transfers to
+the others. For example, the \K C semantics has been tested against GCC's test
+suites giving a certain confedence in the correctness of the dedective verifier.
+We often don't have this confidence when using other verifiers, such as VCC
+\todo{Examples, citations}. The JavaScript revealed bugs and divergent behaviour
+in all major JavaScript engines.
+
+This project aims to be a first step towards adding language-agnostic static
+checking of invariants and specifiations to \K's repertoire. Currently, while
+\K does provide a deductive program verifier, it requires the user to have a
+non-trivial understanding of both \K and the implementation details of the
+language. While this in itself is useful (and has commercial value), it sets a
+high bar for writing verified software. Dafny provides an easy-to-use, modular
+and scalable approach to verified software development. It does this through
+provding a mechanism for specifying invariants, pre-conditions, and
+post-conditions via a syntax built in to the language. Static verification of
+these invariants, is however, non-trivial. Dafny implements this via translation of
+each program into another language, Boogie, built specifically for verification.
+Execution of Dafny programs is handled by a completely different code path,
+allowing for divergence between the two. We believe that small (and natural) extensions
+to the \K framework would allow languages developers to implement similar features
+in other languages, all the while using the same implementation for both
+verification and execution. With that goal in mind, this project implements
+a verification specific semantics for Dafny: it can take a program written
+in (a subset of) Dafny, and check partial correctness.
 
 ## Implementation
 
 ### What subset of Dafny do we implement
 
 ### Explain a K definition, a few of the rules (main, if, while, assert, #abstract, assume)
-
-TODO: Steal from section 3 from KEVM paper
 
 The main components of a \K definition are:
 
@@ -150,42 +165,15 @@ The following, slightly more complicated, snippet defines variable assignment:
 
 The update statement is defined strict in it's second argument: the `Exp` passed to
 it must be fully evaluated before proceeding. The rule states that whenever
-an update statement is encountered at the top of the `<k>` cell, replace it
+an update statement is encountered at the top of the `<k>` cell, replace it.
 
---------------------------------------------------------------------------------
-
-A rewrite rule is a pair of patterns over language constructs, including
-variables over syntax items (such as Ints, Strings, etc that may appear in the
-AST). These rewrite rules can also include parts of the language configuration.
-A rewrite rule contains a pair of these patterns, one to match and one to
-rewrite to. When a rule is applied, elements of the rule match with the current
-configuration of the program, assigning values to variables contained in the
-rules. Once a full match is completed, the the right hand side of the rule is
-used to construct the next state of the program using the values for variables
-defined on the left hand side. As an example:
-
-```k
-<k> S1:Stmt ; Ss:Stmts => S1 ~> Ss </k>
-```
-
-// The \`k\` cell is traditionally used to hold the program text under
-test.
-
-Is a typical rule specifying sequential composition of a list of Stmt
-syntax item (statements in the programming language), which are
-separated by semicolons. This rule separates the leftmost statement,
-nearest to the top of the configuration from the remainder of the list.
-This statement can now be matched in future rules which will cause it to
-mutate program state or produce an output. Eventually, if the program
-under test terminates, the contents of the K cell will rewrite to
-nothing. The sequence of rewrite rule applications from the initial
-state of the program to the final empty state constitutes an execution
-of a program under a K semantics.
+- Main, Explain symbolic execution
+    - introduce assert, and assume
+- Explain while
 
 ## Future work
 
-
-### Expanding the subset of dafny we implement
+### Expanding the subset of Dafny we implement
 
 The obvious direction forward is to extend the fragment of dafny programs that
 we can prove partial correctness. A first step in this direction would be to
