@@ -219,7 +219,9 @@ expression `B` holds. Otherwise, it continues with the rest of the program.
   rule <k> while (B) invariant INV { BODY:Statements }
         => assert(INV) ;
            #abstract(INV) ;
-           if (B) { BODY ++Statements (assert (INV) ; assume(false) ; .Statements) }
+           if (B) { BODY ++Statements
+                    (assert (INV) ; assume(false) ; .Statements)
+                  }
            ...
        </k>
 ```
@@ -232,7 +234,7 @@ The obvious direction forward is to extend the fragment of dafny programs that
 we can prove partial correctness. A first step in this direction would be to
 support verification of top-level methods and method calls, additional types
 such as `nat`s and arrays. Verification of invariants involving arrays pose a
-challenge that may need aditional insight, since it often requires
+challenge that may need additional insight, since it often requires
 quantification over array indices. In the long run, we'd like to support the
 plethora of dafny paradigms including algebraic and co-algebraic data types,
 classes, ghost variables and heap reasoning.
@@ -240,7 +242,7 @@ classes, ghost variables and heap reasoning.
 ### Termination
 
 Another important avenue to persue is to extend verification to prove termination
-via Dafny's `decreases` sepecifications.
+via Dafny's `decreases` specifications.
 
 ### Sharing a definition for both execution and verification
 ### Making this language agnostic
