@@ -28,10 +28,12 @@ def build_dafny(backend, alias, flags = ''):
                           , krun_flags    = '--search-final'
                           )
 
-java_exec  = build_dafny(backend = 'java', alias = 'dafny-java-exec')
+haskell  = build_dafny(backend = 'haskell', alias = 'h-dafny')
+haskell.tests(glob = 't/*.dfy', alias='test-haskell')
+haskell.proofs(glob = 'unit-tests.k', alias = 'h-unit-tests')
 
-java_exec.tests(glob = 't/negative/*.dfy')
-java_exec.proofs(glob = 't/positive/*.dfy.k', alias = 'verification')
-java_exec.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+java = build_dafny(backend = 'java', alias = 'j-dafny')
+java.tests(glob = 't/*.dfy')
+java.proofs(glob = 'unit-tests.k', alias = 'j-unit-tests')
 
 proj.main()
