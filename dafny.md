@@ -2,7 +2,7 @@
 module DAFNY
   imports BOOL
   imports INT
-  imports MAP
+  imports MAP-SYMBOLIC
 
   syntax ArgDecls ::= List{ArgDecl, ","}    [klabel(ArgDecls)]
   syntax ArgDecl ::= Id ":" Type
