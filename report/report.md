@@ -46,14 +46,13 @@ Rewrite rules provide an intuitive and highly expressive language for defining
 specifications, allowing people without formal logic training to create and
 verify specifications. As a testimony to the readability of \K specifications,
 the KEVM semantics, a formalization of the Ethereum Virtual Machine is slated to
-replace the reference documentation for that virtual machine
-\todo{is this public?}, while forming the basis for commercial auditing and
-verification efforts. Further, \todo{Citations} complete K semantics exist for
-languages such as C
-\todo{98?}[@ellison2012executable][@hathhorn-ellison-rosu-2015-pldi],
+replace the reference documentation for that virtual machine, while forming the
+basis for commercial auditing and verification efforts. Further, complete K
+semantics exist for languages such as
+C[@ellison2012executable][@hathhorn-ellison-rosu-2015-pldi],
 Java[@bogdanas-rosu-2015-popl] and JavaScript[@park-stefanescu-rosu-2015-pldi],
 witness to the scalability of the \K framework to large semantics. The semantics
-of C++, x86-64 and LLVM are also in the works \todo{is LLVM complete?}.
+of C++, x86-64 and LLVM are also in the works.
 
 ![The  \K approach as described in [@stefanescu-park-yuwen-li-rosu-2016-oopsla]](k-overview.png)
 
@@ -188,8 +187,6 @@ a no op. If it evaluates to `false`, the program verification terminates success
   rule assume(true); => .K                  [transition]
   rule <k> assume(false); ~> S => .K </k>   [transition]
 ```
-
-\todo{explain how we take advantage of symbolic execution}
 
 Verification of the `Main` method occurs as follows: parameters (both input and output)
 are initialized to fresh symbolic values, via the `#declareArgs` construct.
@@ -359,7 +356,3 @@ loop.
 
 So, from the same semantics, we can get concrete execution, invariant checking
 as well as infer new invariants.
-
-## Conclusion
-
-\todo{}
