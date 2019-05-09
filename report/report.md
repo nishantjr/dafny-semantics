@@ -97,6 +97,12 @@ program written in (a subset of) Dafny, and check partial correctness.
 ## Implementation
 
 ### What subset of Dafny do we implement
+The present implementation of Dafny includes the fundamentals of a structured programming language
+capable of verification.  Integer variables and arithmetic, conditionals, while loops (with invariants), 
+assertions and assumptions.  The present implementation verifies all assertions in the program, including
+the main method's post condition.  Currently the user is constrained to only a single main method (which 
+precludes recursive definitions), and cannot verify termination.  The purpose of this project is not
+to replace Dafny entirely, but to demonstrate that a full K definition of Dafny is feasible and useful.
 
 ### Explain a K definition, a few of the rules (main, if, while, assert, #abstract, assume)
 
@@ -297,4 +303,66 @@ loop.
 So, from the same semantics, we can get concrete execution, invariant checking
 as well as infer new invariants.
 
+## Evaluation
+
+We demonstrate our semantics by verifying a sum-to-N program under the semantics:
+
+```
+method Main(n : int) returns (r : int)
+  requires n >= 0
+  ensures  r == n*(n + 1) / 2
+{
+  var i : int ;
+  r := 0;
+  i := n;
+  while (i > 0)
+    invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
+           && i >= 0 && n >= 0 && r >= 0
+  {
+    r := r + i;
+    i := i - 1;
+  }
+}
+```
+
+This validates under the current version of dafny.  Under our semantics, a program is considered
+validated if all paths of the program rewrite to the empty K cell.  This occurs, here, with K also
+outputting information about the constraints on each path taken by the verifier.  One such output is
+provided below as an example:
+
+```
+    Result ==K <generatedTop>
+      <k>
+        .
+      </k>
+      <store>
+        0 |-> V2
+        1 |-> V2 *Int ( V2 +Int 1 ) /Int 2
+        2 |-> V4
+      </store>
+      <env>
+        i |-> 2
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        3
+      </nextLoc>
+    </generatedTop>
+  #And
+    V0 >=Int 0 ==K true
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+  #And
+    V2 *Int ( V2 +Int 1 ) /Int 2 >=Int 0 ==K true
+  #And
+    V2 >=Int 0 ==K true
+  #And
+    V4 >=Int 0 ==K true
+  #And
+    V4 >Int 0 ==K false
+```
+
 ## Conclusion
+
+
