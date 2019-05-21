@@ -1,6 +1,17 @@
+## Future work
 
 
-Possible issues with dafny:
+* Classes
+   * Method calls
+   * global state
+* `#save` is not needed; only one call to `assert`
+* Invariant inference
+   * Move to Haskell backend
+   * Implement `#subsumed`
+* foralls and arrays
+ 
+
+## Possible issues with dafny:
 
 * The following fails to verify:
 
