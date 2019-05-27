@@ -1,37 +1,15 @@
 #!/usr/bin/env python3
-
-import os
-import subprocess
-import sys
-
-# Bootstrapping
-# =============
-
-# Make sure the KNinja repo is available.
-#
-subprocess.check_call(['git', 'submodule', 'update', '--init', '--recursive'])
 extdir = 'ext'
+import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), extdir))
-
-from kninja import *
-
-# Build
-# =====
+from kninja.runner import *
 
 proj = KProject(extdir = extdir)
-def build_dafny(backend, alias, flags = ''):
-    return proj.definition( alias         = alias
-                          , backend       = backend
-                          , main          = 'dafny.md'
-                          , directory     = proj.builddir('defn', backend)
-                          , kompile_flags = '--syntax-module DAFNY ' + flags
-                          , krun_flags    = '--search-final'
-                          )
-
-java_exec  = build_dafny(backend = 'java', alias = 'dafny-java-exec')
-
-java_exec.tests(glob = 't/negative/*.dfy')
-java_exec.proofs(glob = 't/positive/*.dfy.k', alias = 'verification')
-java_exec.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
-
-proj.main()
+KDefinition( proj
+           , alias = 'dafny'
+           , backend = 'java'
+           , directory = proj.builddir('defn/java')
+           , krun_flags = '--search-final'
+           )
+KRunner(proj).main()
