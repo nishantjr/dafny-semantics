@@ -43,6 +43,7 @@ Main method:
   rule #declareArgs(.ArgDecls) => .K
   rule #declareArgs(X:Id : T)  => var X : T ;
   rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
+    requires DS =/=K .ArgDecls
 ```
 
 Arithmetic expression:
