@@ -23,13 +23,12 @@ def build_dafny(backend, alias, flags = ''):
     return proj.definition( alias         = alias
                           , backend       = backend
                           , main          = 'dafny.md'
-                          , directory     = proj.builddir('defn', backend)
                           , flags         = '--syntax-module DAFNY ' + flags
                           , runner_script = './kdafny'
                           )
 
-java = build_dafny(backend = 'java', alias = 'dafny')
-java.tests(glob = 't/*.dfy')
-java.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+haskell = build_dafny(backend = 'haskell', alias = 'dafny')
+haskell.tests(glob = 't/*.dfy', alias = 'tests')
+haskell.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
 proj.main()

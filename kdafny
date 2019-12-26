@@ -8,8 +8,7 @@ from kninja.runner import *
 proj = KProject(extdir = extdir)
 KDefinition( proj
            , alias = 'dafny'
-           , backend = 'java'
-           , directory = proj.builddir('defn/java')
-           , krun_flags = '--search-final'
+           , backend = 'haskell'
+           , directory = proj.builddir('defn/dafny')
            )
 KRunner(proj).main()
