@@ -57,25 +57,4 @@ module UNIT-TESTS [all-path]
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
-
-  rule <k> method Main(n : int, .ArgDecls) returns (r : int, .ArgDecls)
-             requires n >= 0
-             ensures  r == n*(n + 1) / 2
-           {
-             var i : int ;
-             r := 0;
-             i := n;
-             while (i > 0)
-               invariant r + i * ( i + 1) / 2 == n * (n + 1 ) / 2
-                      && i >= 0 && n >= 0 && r >= 0
-             {
-               r := r + i;
-               i := i - 1;
-             }
-           }
-        => #success
-       </k>
-       <store> .Map => ?_ </store>
-       <env> .Map => ?_ </env>
-       <nextLoc> 0 => ?_ </nextLoc>
 endmodule
