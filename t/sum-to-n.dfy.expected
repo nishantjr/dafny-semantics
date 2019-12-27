@@ -41,6 +41,33 @@
           #success
         </k>
         <store>
+          0 |-> _0:Int
+          1 |-> _00:Int
+        </store>
+        <env>
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          2
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      false
+    #Equals
+      _0 >=Int 0
+    }
+#Or
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
           0 |-> _1:Int
           1 |-> _1 *Int ( _1 +Int 1 ) /Int 2
           2 |-> _11:Int
@@ -90,33 +117,6 @@
       true
     #Equals
       _11 >=Int 0
-    }
-#Or
-    {
-      Result
-    #Equals
-      <generatedTop>
-        <k>
-          #success
-        </k>
-        <store>
-          0 |-> _0:Int
-          1 |-> _00:Int
-        </store>
-        <env>
-          n |-> 0
-          r |-> 1
-        </env>
-        <nextLoc>
-          2
-        </nextLoc>
-      </generatedTop>
-    }
-  #And
-    {
-      false
-    #Equals
-      _0 >=Int 0
     }
 #Or
     {
