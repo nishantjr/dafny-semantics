@@ -57,4 +57,13 @@ module UNIT-TESTS [all-path]
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
+
+  rule <k>   var i : int ; i := 100 ;
+           { var i : int ; i := 200 ; }
+        ~> i
+        => 100
+       </k>
+       <store>   .Map => ?_  </store>
+       <env>     .Map => ?_  </env>
+       <nextLoc> 0    => ?_  </nextLoc>
 endmodule

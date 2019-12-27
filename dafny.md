@@ -36,8 +36,18 @@ module DAFNY
 
 ```k
   syntax Statements ::= List{Statement, ""} [klabel(Statements)]
-  rule S Ss:Statements => S ~> Ss
-  rule .Statements => .K
+  rule <k> S Ss:Statements => S ~> Ss  ... </k>
+  rule <k> .Statements => .K           ... </k>
+```
+
+## Blocks
+
+```k
+  syntax Statement ::= "{" Statements "}"
+  rule <k> { Ss } => Ss ~> ENV ... </k>
+       <env> ENV </env>
+  rule <k> ENV_ORGINAL:Map => .K ... </k>
+       <env> ENV => ENV_ORGINAL </env>
 ```
 
 ## Arithmetic expressions:
@@ -109,7 +119,7 @@ module DAFNY
 ```k
   syntax Statement ::= "var" Id ":" Type ";"
   rule <k> var X : int ; => .K ... </k>
-       <env> .Map => X |-> LOC ... </env>
+       <env> ENV => ENV[X <- LOC] </env>
        <store> .Map => LOC |-> ?_:Int ... </store>
        <nextLoc> LOC => LOC +Int 1 </nextLoc>
 ```
