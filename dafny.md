@@ -3,13 +3,22 @@ module DAFNY
   imports BOOL
   imports INT
   imports MAP
-
+  imports ID
+  imports COLLECTIONS
+  
+  rule 0 +Int N => N [simplification]
+  rule N +Int 0 => N [simplification]
+  rule N -Int 0 => N [simplification]
+  
   syntax ArgDecls ::= List{ArgDecl, ","}    [klabel(ArgDecls)]
   syntax ArgDecl ::= Id ":" Type
   syntax Type ::= "int"
-
-  syntax Id ::= r"[a-z][a-z]*" [token]
-              | "i" | "x" | "r" | "n"
+  
+  // Needed for parsing unit-tests
+  syntax Id ::= "i" [token]
+              | "x" [token]
+              | "r" [token]
+              | "n" [token]
   syntax Exp ::= ResultExp
                | Id
                | "(" Exp ")" [bracket]
@@ -19,6 +28,8 @@ module DAFNY
                 <store> .Map </store>
                 <env> .Map </env>
                 <nextLoc> 0 </nextLoc>
+
+   syntax KItem ::= "#success"
 ```
 
 Main method:
@@ -38,8 +49,9 @@ Main method:
     ~> assume(REQS);
     ~> STMTS
     ~> assert(ENSURES);
+    ~> #success
 
-  syntax K ::= "#declareArgs" "(" ArgDecls ")" [function]
+  syntax KItem ::= "#declareArgs" "(" ArgDecls ")"
   rule #declareArgs(.ArgDecls) => .K
   rule #declareArgs(X:Id : T)  => var X : T ;
   rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
@@ -50,12 +62,12 @@ Arithmetic expression:
 
 ```k
   syntax ResultExp ::= Bool | Int
-  syntax Exp ::= "(" Exp ")" [bracket]
-               | Exp "*" Exp [seqstrict, left]
-               > Exp "/" Exp [seqstrict, left]
-               | Exp "%" Exp [seqstrict, left]
-               > Exp "+" Exp [seqstrict, left]
-               | Exp "-" Exp [seqstrict]
+  syntax Exp ::= "(" Exp ")"  [bracket]
+               | Exp "*" Exp  [seqstrict, left]
+               > Exp "/" Exp  [seqstrict, left]
+               | Exp "%" Exp  [seqstrict, left]
+               > Exp "+" Exp  [seqstrict, left]
+               | Exp "-" Exp  [seqstrict]
                > Exp ">"  Exp [seqstrict]
                | Exp ">=" Exp [seqstrict]
                | Exp "<" Exp  [seqstrict]
@@ -63,15 +75,16 @@ Arithmetic expression:
                | Exp "==" Exp [seqstrict]
                | Exp "!=" Exp [seqstrict]
                > Exp "&&" Exp [seqstrict, left]
+
   rule <k> I1:Int + I2:Int => I1 +Int I2 ... </k>
   rule <k> I1:Int - I2:Int => I1 -Int I2 ... </k>
   rule <k> I1:Int * I2:Int => I1 *Int I2 ... </k>
   rule <k> I1:Int / I2:Int => I1 /Int I2 ... </k>
-    requires I2 =/=Int 0                           [transition]
-  rule <k> I1:Int / 0 => #error ~> I1 / 0 ... </k> [transition]
+    requires I2 =/=Int 0
+  rule <k> I1:Int / 0 => #error ~> I1 / 0 ... </k>
   rule <k> I1:Int % I2:Int => I1 modInt I2 ... </k>
-    requires I2 =/=Int 0                           [transition]
-  rule <k> I1:Int % 0 => #error ~> I1 % 0 ... </k> [transition]
+    requires I2 =/=Int 0
+  rule <k> I1:Int % 0 => #error ~> I1 % 0 ... </k>
 
   rule <k> I1:Int > I2:Int => I1 >Int I2 ... </k>
   rule <k> I1:Int >= I2:Int => I1 >=Int I2 ... </k>
@@ -88,8 +101,8 @@ Variable lookup:
 
 ```k
   rule <k> X:Id => V ... </k>
-       <env> ... X |-> LOC ... </env>
-       <store> ... LOC |-> V ... </store>
+       <env> X |-> LOC ... </env>
+       <store> LOC |-> V ... </store>
 ```
 
 Statements:
@@ -105,16 +118,16 @@ Assert statement:
 ```k
   syntax Statement ::= "assert" Exp ";" [strict]
   syntax KItem ::= "#error"
-  rule assert(true); => .K          [transition]
-  rule assert(false); => #error     [transition]
+  rule assert(true); => .K
+  rule assert(false); => #error
 ```
 
 Assume statement:
 
 ```k
   syntax Statement ::= "assume" Exp ";" [strict]
-  rule assume(true); => .K                  [transition]
-  rule <k> assume(false); ~> S => .K </k>   [transition]
+  rule <k> assume(true); => .K  ...        </k>
+  rule <k> assume(false); ~> S => #success </k>
 ```
 
 Variable declaration:
@@ -140,8 +153,8 @@ if statements
 
 ```k
   syntax Statement ::= "if" "(" Exp ")" "{" Statements "}" [strict(1)]
-  rule <k> if ( true ) { S } => S ... </k>                 [transition]
-  rule <k> if ( false ) { S } => .K ... </k>               [transition]
+  rule <k> if ( true ) { S } => S ... </k>
+  rule <k> if ( false ) { S } => .K ... </k>
 ```
 
 while statements
@@ -161,15 +174,22 @@ such that `EXP` holds.
 
 ```k
   syntax Statement ::= "#abstract" "(" Exp ")" ";"
-  rule <k> #abstract(EXP) ; => assume(EXP) ; ... </k>
-       <store> STORE => #resetVariables(STORE) </store>
-  syntax Map ::= "#resetVariables" "(" Map ")" [function, klabel(resetVariablesHelper)]
-  rule #resetVariables(.Map) => .Map
-  rule #resetVariables((L |-> V) REST) => (L |-> ?_:Int) #resetVariables(REST)
+  rule <k> #abstract(EXP) ;  => #resetStore(Set2List(keys(STORE))) ~> assume(EXP) ; ... </k>
+       <store> STORE </store>
+  syntax KItem ::= "#resetStore" "(" List ")"
+  rule <k> #resetStore(.List) => .K ... </k>
+  rule <k> #resetStore(ListItem(LOC) REST)
+        => #resetStore(              REST)
+           ...
+       </k>
+       <store>
+          LOC |-> (_ => ?_:Int)
+          ...
+       </store>
 ```
 
 ```k
-  syntax Statements ::= Statements "++Statements" Statements [function]
+  syntax Statements ::= Statements "++Statements" Statements [function, functional]
   rule .Statements ++Statements S => S
   rule (S1 S1s) ++Statements S2s => S1 (S1s ++Statements S2s)
 ```

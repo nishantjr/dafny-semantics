@@ -28,7 +28,7 @@ def build_dafny(backend, alias, flags = ''):
                           )
 
 haskell = build_dafny(backend = 'haskell', alias = 'dafny')
-haskell.tests(glob = 't/*.dfy', alias = 'tests')
+haskell.tests(glob = 't/*.dfy', alias = 'tests', flags = '--search-final')
 haskell.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
 
 proj.main()

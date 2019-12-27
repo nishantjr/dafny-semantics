@@ -1,16 +1,20 @@
-Result ==K <generatedTop>
-  <k>
-    .
-  </k>
-  <store>
-    0 |-> V0
-    1 |-> V0 *Int 2
-  </store>
-  <env>
-    n |-> 0
-    r |-> 1
-  </env>
-  <nextLoc>
-    2
-  </nextLoc>
-</generatedTop>
+{
+  Result
+#Equals
+  <generatedTop>
+    <k>
+      #success
+    </k>
+    <store>
+      0 |-> _0:Int
+      1 |-> _0 *Int 2
+    </store>
+    <env>
+      n |-> 0
+      r |-> 1
+    </env>
+    <nextLoc>
+      2
+    </nextLoc>
+  </generatedTop>
+}

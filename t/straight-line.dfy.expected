@@ -1,37 +1,59 @@
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V0
-        1 |-> 2 *Int V0 *Int V0
-      </store>
-      <env>
-        r |-> 1
-        x |-> 0
-      </env>
-      <nextLoc>
-        2
-      </nextLoc>
-    </generatedTop>
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _0:Int
+          1 |-> 2 *Int _0 *Int _0
+        </store>
+        <env>
+          r |-> 1
+          x |-> 0
+        </env>
+        <nextLoc>
+          2
+        </nextLoc>
+      </generatedTop>
+    }
   #And
-    V0 >Int 0 ==K true
+    {
+      true
+    #Equals
+      2 *Int _0 *Int _0 >Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >Int 0
+    }
 #Or
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V0
-        1 |-> V1
-      </store>
-      <env>
-        r |-> 1
-        x |-> 0
-      </env>
-      <nextLoc>
-        2
-      </nextLoc>
-    </generatedTop>
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _0:Int
+          1 |-> _00:Int
+        </store>
+        <env>
+          r |-> 1
+          x |-> 0
+        </env>
+        <nextLoc>
+          2
+        </nextLoc>
+      </generatedTop>
+    }
   #And
-    V0 >Int 0 ==K false
+    {
+      false
+    #Equals
+      _0 >Int 0
+    }

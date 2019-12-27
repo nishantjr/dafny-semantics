@@ -1,109 +1,338 @@
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V0
-        1 |-> V1
-      </store>
-      <env>
-        n |-> 0
-        r |-> 1
-      </env>
-      <nextLoc>
-        2
-      </nextLoc>
-    </generatedTop>
+    #Not ( {
+      _10 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    } )
   #And
-    V0 >=Int 0 ==K false
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _10:Int
+          2 |-> _11:Int
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
 #Or
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V2
-        1 |-> V3
-        2 |-> V4
-      </store>
-      <env>
-        i |-> 2
-        n |-> 0
-        r |-> 1
-      </env>
-      <nextLoc>
-        3
-      </nextLoc>
-    </generatedTop>
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _1 *Int ( _1 +Int 1 ) /Int 2
+          2 |-> _11:Int
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
   #And
-    V0 >=Int 0 ==K true
+    {
+      _1 *Int ( _1 +Int 1 ) /Int 2 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
   #And
-    V3 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+    {
+      false
+    #Equals
+      _11 >Int 0
+    }
   #And
-    V3 >=Int 0 ==K false
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
   #And
-    V2 >=Int 0 ==K true
+    {
+      true
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2 >=Int 0
+    }
   #And
-    V4 >=Int 0 ==K true
+    {
+      true
+    #Equals
+      _1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 >=Int 0
+    }
 #Or
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V2
-        1 |-> V3 +Int V4
-        2 |-> V4 -Int 1
-      </store>
-      <env>
-        i |-> 2
-        n |-> 0
-        r |-> 1
-      </env>
-      <nextLoc>
-        3
-      </nextLoc>
-    </generatedTop>
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _0:Int
+          1 |-> _00:Int
+        </store>
+        <env>
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          2
+        </nextLoc>
+      </generatedTop>
+    }
   #And
-    V0 >=Int 0 ==K true
-  #And
-    V3 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
-  #And
-    V3 >=Int 0 ==K true
-  #And
-    V2 >=Int 0 ==K true
-  #And
-    V4 >=Int 0 ==K true
-  #And
-    V4 >Int 0 ==K true
+    {
+      false
+    #Equals
+      _0 >=Int 0
+    }
 #Or
-    Result ==K <generatedTop>
-      <k>
-        .
-      </k>
-      <store>
-        0 |-> V2
-        1 |-> V2 *Int ( V2 +Int 1 ) /Int 2
-        2 |-> V4
-      </store>
-      <env>
-        i |-> 2
-        n |-> 0
-        r |-> 1
-      </env>
-      <nextLoc>
-        3
-      </nextLoc>
-    </generatedTop>
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _10 +Int _11
+          2 |-> _11 -Int 1
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
   #And
-    V0 >=Int 0 ==K true
+    {
+      _10 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
   #And
-    V2 *Int ( V2 +Int 1 ) /Int 2 +Int V4 *Int ( V4 +Int 1 ) /Int 2 ==K V2 *Int ( V2 +Int 1 ) /Int 2
+    {
+      _10 +Int _11 +Int ( _11 -Int 1 ) *Int ( _11 -Int 1 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
   #And
-    V2 *Int ( V2 +Int 1 ) /Int 2 >=Int 0 ==K true
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
   #And
-    V2 >=Int 0 ==K true
+    {
+      true
+    #Equals
+      _1 >=Int 0
+    }
   #And
-    V4 >=Int 0 ==K true
+    {
+      true
+    #Equals
+      _10 +Int _11 >=Int 0
+    }
   #And
-    V4 >Int 0 ==K false
+    {
+      true
+    #Equals
+      _10 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 -Int 1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 >Int 0
+    }
+#Or
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _10:Int
+          2 |-> _11:Int
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      _10 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
+  #And
+    {
+      false
+    #Equals
+      _1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 >=Int 0
+    }
+#Or
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _10:Int
+          2 |-> _11:Int
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      _10 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
+  #And
+    {
+      false
+    #Equals
+      _10 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _11 >=Int 0
+    }
+#Or
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          #success
+        </k>
+        <store>
+          0 |-> _1:Int
+          1 |-> _10:Int
+          2 |-> _11:Int
+        </store>
+        <env>
+          i |-> 2
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          3
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      _10 +Int _11 *Int ( _11 +Int 1 ) /Int 2
+    #Equals
+      _1 *Int ( _1 +Int 1 ) /Int 2
+    }
+  #And
+    {
+      false
+    #Equals
+      _11 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }

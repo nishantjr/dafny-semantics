@@ -1,4 +1,4 @@
-module UNIT-TESTS
+module UNIT-TESTS [all-path]
   imports DAFNY
 
   rule <k> 2 + 2 * 2 => 6 </k>
@@ -73,10 +73,9 @@ module UNIT-TESTS
                i := i - 1;
              }
            }
-        => .K
+        => #success
        </k>
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => ?_ </nextLoc>
-
 endmodule
