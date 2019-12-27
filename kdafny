@@ -7,8 +7,13 @@ from kninja.runner import *
 
 proj = KProject(extdir = extdir)
 KDefinition( proj
-           , alias = 'dafny'
+           , alias = 'verification'
            , backend = 'haskell'
-           , directory = proj.builddir('defn/dafny')
+           , directory = proj.builddir('defn/verification')
+           )
+KDefinition( proj
+           , alias = 'execution'
+           , backend = 'haskell'
+           , directory = proj.builddir('defn/execution')
            )
 KRunner(proj).main()

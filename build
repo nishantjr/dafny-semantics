@@ -19,16 +19,20 @@ from kninja import *
 # =====
 
 proj = KProject(extdir = extdir)
-def build_dafny(backend, alias, flags = ''):
+def build_dafny(backend, alias, tangle_selector, flags = ''):
     return proj.definition( alias         = alias
                           , backend       = backend
                           , main          = 'dafny.md'
                           , flags         = '--syntax-module DAFNY ' + flags
                           , runner_script = './kdafny'
+                          , tangle_selector = '.k,' + tangle_selector
                           )
 
-haskell = build_dafny(backend = 'haskell', alias = 'dafny')
-haskell.tests(glob = 't/*.dfy', alias = 'tests', flags = '--search-final')
-haskell.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+verification = build_dafny(backend = 'haskell', alias = 'verification', tangle_selector='.verification')
+verification.tests(glob = 't/*.dfy', alias = 'tests', flags = '--search-final')
+verification.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+
+execution = build_dafny(backend = 'haskell', alias = 'execution', tangle_selector='.execution')
+execution.target.default()
 
 proj.main()

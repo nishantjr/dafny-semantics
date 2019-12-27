@@ -131,10 +131,13 @@ module DAFNY
   rule <k> if ( false ) { S } => .K ... </k>
 ```
 
-while statements
+## while statements
 
 ```k
   syntax Statement ::= "while" "(" Exp ")" "invariant" Exp "{" Statements "}"
+```
+
+```verification
   rule <k> while (B) invariant INV { S:Statements }
         => assert(INV) ;
            #abstract(INV) ;
@@ -142,7 +145,6 @@ while statements
            ...
        </k>
 ```
-
 
 Main method:
 
