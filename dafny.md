@@ -32,33 +32,15 @@ module DAFNY
    syntax KItem ::= "#success"
 ```
 
-Main method:
+## Statement sequencing:
 
 ```k
-  syntax Main ::= "method" "Main" "(" ArgDecls ")"
-                  "returns" "(" ArgDecls ")"
-                  "requires" Exp
-                  "ensures" Exp
-                  "{" Statements "}"
-  rule method Main (ARGS) returns (RETS)
-         requires REQS
-         ensures ENSURES
-       { STMTS }
-    => #declareArgs(ARGS)
-    ~> #declareArgs(RETS)
-    ~> assume(REQS);
-    ~> STMTS
-    ~> assert(ENSURES);
-    ~> #success
-
-  syntax KItem ::= "#declareArgs" "(" ArgDecls ")"
-  rule #declareArgs(.ArgDecls) => .K
-  rule #declareArgs(X:Id : T)  => var X : T ;
-  rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
-    requires DS =/=K .ArgDecls
+  syntax Statements ::= List{Statement, ""} [klabel(Statements)]
+  rule S Ss:Statements => S ~> Ss
+  rule .Statements => .K
 ```
 
-Arithmetic expression:
+## Arithmetic expressions:
 
 ```k
   syntax ResultExp ::= Bool | Int
@@ -97,7 +79,7 @@ Arithmetic expression:
   rule <k> true && E:Exp => E ... </k>
 ```
 
-Variable lookup:
+## Variable lookup:
 
 ```k
   rule <k> X:Id => V ... </k>
@@ -105,15 +87,7 @@ Variable lookup:
        <store> LOC |-> V ... </store>
 ```
 
-Statements:
-
-```k
-  syntax Statements ::= List{Statement, ""} [klabel(Statements)]
-  rule S Ss:Statements => S ~> Ss
-  rule .Statements => .K
-```
-
-Assert statement:
+## Assert statements:
 
 ```k
   syntax Statement ::= "assert" Exp ";" [strict]
@@ -122,7 +96,7 @@ Assert statement:
   rule assert(false); => #error
 ```
 
-Assume statement:
+## Assume statements:
 
 ```k
   syntax Statement ::= "assume" Exp ";" [strict]
@@ -130,7 +104,7 @@ Assume statement:
   rule <k> assume(false); ~> S => #success </k>
 ```
 
-Variable declaration:
+## Variable declaration:
 
 ```k
   syntax Statement ::= "var" Id ":" Type ";"
@@ -140,7 +114,7 @@ Variable declaration:
        <nextLoc> LOC => LOC +Int 1 </nextLoc>
 ```
 
-Update
+## Assignment statements:
 
 ```k
   syntax Statement ::= Id ":=" Exp ";" [strict(2)]
@@ -149,7 +123,7 @@ Update
        <store> ... LOC |-> (_ => V) ... </store>
 ```
 
-if statements
+## if statements
 
 ```k
   syntax Statement ::= "if" "(" Exp ")" "{" Statements "}" [strict(1)]
@@ -167,6 +141,33 @@ while statements
            if (B) { S ++Statements (assert (INV) ; assume(false) ; .Statements) }
            ...
        </k>
+```
+
+
+Main method:
+
+```k
+  syntax Main ::= "method" "Main" "(" ArgDecls ")"
+                  "returns" "(" ArgDecls ")"
+                  "requires" Exp
+                  "ensures" Exp
+                  "{" Statements "}"
+  rule method Main (ARGS) returns (RETS)
+         requires REQS
+         ensures ENSURES
+       { STMTS }
+    => #declareArgs(ARGS)
+    ~> #declareArgs(RETS)
+    ~> assume(REQS);
+    ~> STMTS
+    ~> assert(ENSURES);
+    ~> #success
+
+  syntax KItem ::= "#declareArgs" "(" ArgDecls ")"
+  rule #declareArgs(.ArgDecls) => .K
+  rule #declareArgs(X:Id : T)  => var X : T ;
+  rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
+    requires DS =/=K .ArgDecls
 ```
 
 `#abstract(EXP)` statements: resets all variables in the store to symbolic values
