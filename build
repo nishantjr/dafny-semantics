@@ -28,11 +28,15 @@ def build_dafny(backend, alias, tangle_selector, flags = ''):
                           , tangle_selector = '.k,' + tangle_selector
                           )
 
+unit_tests = []
+
 verification = build_dafny(backend = 'haskell', alias = 'verification', tangle_selector='.verification')
 verification.tests(glob = 't/*.dfy', alias = 'tests', flags = '--search-final')
-verification.proofs(glob = 'unit-tests.k', alias = 'unit-tests')
+unit_tests += [verification.proofs(inputs = ['t/proofs/unit-common.k'], alias = 't/proofs/unit-verification', flags = '--spec-module TEST')]
 
 execution = build_dafny(backend = 'haskell', alias = 'execution', tangle_selector='.execution')
-execution.target.default()
+unit_tests += [execution.proofs(inputs = ['t/proofs/unit-common.k'], alias = 't/proofs/unit-execution', flags = '--spec-module TEST')]
+
+proj.alias('unit-tests', unit_tests)
 
 proj.main()
