@@ -156,6 +156,14 @@ module DAFNY
        </k>
 ```
 
+```execution
+  rule <k> while (B) invariant INV { S:Statements }
+        => assert(INV) ;
+           if (B) { S ++Statements while (B) invariant INV { S:Statements } }
+           ...
+       </k>
+```
+
 Main method:
 
 ```k
