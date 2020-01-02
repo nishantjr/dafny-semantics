@@ -100,7 +100,7 @@ module DAFNY
 ## Assert statements:
 
 ```k
-  syntax Statement ::= "assert" Exp ";" [strict]
+  syntax Statement ::= "assert" Exp ";" [seqstrict]
   syntax KItem ::= "#error"
   rule assert(true); => .K
   rule assert(false); => #error
@@ -109,7 +109,7 @@ module DAFNY
 ## Assume statements:
 
 ```k
-  syntax Statement ::= "assume" Exp ";" [strict]
+  syntax Statement ::= "assume" Exp ";" [seqstrict]
   rule <k> assume(true); => .K  ...        </k>
   rule <k> assume(false); ~> S => #success </k>
 ```
@@ -127,7 +127,7 @@ module DAFNY
 ## Assignment statements:
 
 ```k
-  syntax Statement ::= Id ":=" Exp ";" [strict(2)]
+  syntax Statement ::= Id ":=" Exp ";" [seqstrict(2)]
   rule <k> X := V:Int ; => .K ... </k>
        <env> ... X |-> LOC ... </env>
        <store> ... LOC |-> (_ => V) ... </store>
@@ -136,7 +136,7 @@ module DAFNY
 ## if statements
 
 ```k
-  syntax Statement ::= "if" "(" Exp ")" "{" Statements "}" [strict(1)]
+  syntax Statement ::= "if" "(" Exp ")" "{" Statements "}" [seqstrict(1)]
   rule <k> if ( true ) { S } => S ... </k>
   rule <k> if ( false ) { S } => .K ... </k>
 ```
