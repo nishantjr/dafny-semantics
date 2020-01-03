@@ -36,8 +36,9 @@ module DAFNY
 
 ```k
   syntax Statements ::= List{Statement, ""} [klabel(Statements)]
-  rule <k> S Ss:Statements => S ~> Ss  ... </k>
-  rule <k> .Statements => .K           ... </k>
+  rule <k> S Ss:Statements => S ~> Ss  ... </k> requires Ss =/=K .Statements
+  rule <k> S .Statements => S:Statement ... </k>
+  rule <k> .Statements => .K            ... </k>
 ```
 
 ## Wait
@@ -164,8 +165,7 @@ module DAFNY
 
 ```execution
   rule <k> while (B) invariant INV { S:Statements }
-        => assert(INV) ;
-           if (B) { S ++Statements while (B) invariant INV { S:Statements } }
+        => if (B) { S ++Statements while (B) invariant INV { S:Statements } }
            ...
        </k>
 ```
