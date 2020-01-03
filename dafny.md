@@ -40,6 +40,12 @@ module DAFNY
   rule <k> .Statements => .K           ... </k>
 ```
 
+## Wait
+
+```k
+  syntax Statement ::= "wait" "(" Int ")" ";"
+```
+
 ## Blocks
 
 ```k
