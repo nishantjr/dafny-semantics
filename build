@@ -36,8 +36,8 @@ unit_tests += [verification.proofs(inputs = ['t/proofs/unit-common.k'], alias = 
 
 execution = build_dafny(backend = 'haskell', alias = 'execution', tangle_selector='.execution')
 unit_tests += [execution.proofs(inputs = ['t/proofs/unit-common.k'], alias = 't/proofs/unit-execution', flags = '--spec-module TEST')]
-unit_tests += [execution.proofs(inputs = ['t/proofs/sum-to-n.k'],    alias = 't/proofs/sum-to-n', flags = '--spec-module TEST')]
-unit_tests += [execution.proofs(inputs = ['t/proofs/sum-to-2n.k'],    alias = 't/proofs/sum-to-2n', flags = '--spec-module TEST')]
+unit_tests += [execution.proofs(inputs = ['t/proofs/sum-to-n.k'],    alias = 't/proofs/sum-to-n',       flags = '--spec-module TEST')]
+unit_tests += [execution.proofs(inputs = ['t/proofs/sum-to-2n.k'],   alias = 't/proofs/sum-to-2n',      flags = '--spec-module TEST')]
 
 proj.alias('unit-tests', unit_tests)
 

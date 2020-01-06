@@ -6,6 +6,7 @@ module DAFNY
   imports ID
   imports COLLECTIONS
   
+  // These are only needed for readability of intermediate steps
   rule 0 +Int N => N [simplification]
   rule N +Int 0 => N [simplification]
   rule N -Int 0 => N [simplification]
@@ -158,14 +159,25 @@ module DAFNY
   rule <k> while (B) invariant INV { S:Statements }
         => assert(INV) ;
            #abstract(INV) ;
-           if (B) { S ++Statements (assert (INV) ; assume(false) ; .Statements) }
+           if (B) {
+             { S }
+             assert (INV) ;
+             assume(false) ;
+             .Statements
+           }
            ...
        </k>
 ```
 
 ```execution
   rule <k> while (B) invariant INV { S:Statements }
-        => if (B) { S ++Statements while (B) invariant INV { S:Statements } }
+        => assert(INV) ;
+           if (B) {
+              { S }
+              while (B)
+                invariant INV
+              { S:Statements }
+           }
            ...
        </k>
 ```
@@ -201,7 +213,11 @@ such that `EXP` holds.
 
 ```k
   syntax Statement ::= "#abstract" "(" Exp ")" ";"
-  rule <k> #abstract(EXP) ;  => #resetStore(Set2List(keys(STORE))) ~> assume(EXP) ; ... </k>
+  rule <k> #abstract(EXP) ;
+        => #resetStore(Set2List(keys(STORE)))
+        ~> assume(EXP) ;
+           ...
+       </k>
        <store> STORE </store>
   syntax KItem ::= "#resetStore" "(" List ")"
   rule <k> #resetStore(.List) => .K ... </k>
@@ -213,12 +229,6 @@ such that `EXP` holds.
           LOC |-> (_ => ?_:Int)
           ...
        </store>
-```
-
-```k
-  syntax Statements ::= Statements "++Statements" Statements [function, functional]
-  rule .Statements ++Statements S => S
-  rule (S1 S1s) ++Statements S2s => S1 (S1s ++Statements S2s)
 ```
 
 ```k

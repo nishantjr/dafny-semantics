@@ -17,7 +17,7 @@ module TEST [all-path]
         i := i - 1;
       }
     }
-        => #success
+ => #success
        </k>
        <store>   .Map => _ </store>
        <env>     .Map => _ </env>
