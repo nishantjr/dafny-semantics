@@ -66,4 +66,20 @@ module TEST [all-path]
        <store>   .Map => ?_  </store>
        <env>     .Map => ?_  </env>
        <nextLoc> 0    => ?_  </nextLoc>
+
+  rule <k> 1, 2 + 2, 3, .Exps
+        => 1, 4, 3, .ResultExps
+           ...
+       </k>
+       <store>   .Map => ?_  </store>
+       <env>     .Map => ?_  </env>
+       <nextLoc> 0    => ?_  </nextLoc>
+
+  rule <k> (1 + 2), (2 + 3), (3 + 4), .Exps
+        => 3, 5, 7, .ResultExps
+           ...
+       </k>
+       <store>   .Map => ?_  </store>
+       <env>     .Map => ?_  </env>
+       <nextLoc> 0    => ?_  </nextLoc>
 endmodule

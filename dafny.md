@@ -25,7 +25,7 @@ module DAFNY
                | "(" Exp ")" [bracket]
   syntax KResult ::= ResultExp
 
-  configuration <k> $PGM:Main </k>
+  configuration <k> $PGM:Exps </k>
                 <store> .Map </store>
                 <env> .Map </env>
                 <nextLoc> 0 </nextLoc>
@@ -182,13 +182,31 @@ module DAFNY
        </k>
 ```
 
+```k
+  syntax Exps       ::= List{Exp, ","}        [klabel(Exps)]
+  syntax ResultExps ::= List{ResultExp, ","}  [klabel(ResultExps)]
+  
+  syntax Exp  ::= "#hole"
+
+  rule <k> (E, Es):Exps => E ~> #hole, Es ... </k>
+    requires notBool isResultExp(E)
+  rule <k> E:ResultExp ~> #hole, Es:Exps => E, Es ... </k>
+    
+  rule <k> (E, Es):Exps => Es ~> E, #hole ... </k>
+    requires isResultExp(E)
+//     andBool notBool isResultExps(Es)
+  rule <k> Es:ResultExps ~> E, #hole => E, Es:ResultExps ... </k>
+  
+  rule <k> .Exps => .ResultExps ... </k>
+```
+
 Main method:
 
 ```k
   syntax Main ::= "method" "Main" "(" ArgDecls ")"
-                  "returns" "(" ArgDecls ")"
-                  "requires" Exp
-                  "ensures" Exp
+                    "returns" "(" ArgDecls ")"
+                    "requires" Exp
+                    "ensures" Exp
                   "{" Statements "}"
   rule method Main (ARGS) returns (RETS)
          requires REQS
