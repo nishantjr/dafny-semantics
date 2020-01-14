@@ -122,8 +122,8 @@ the increment). */
   syntax Exp ::= Int | Bool | String | Id
                | "(" Exp ")"             [bracket]
                | "++" Exp
-               > Exp "[" Exps "]"        [strict]
-               > Exp "(" Exps ")"        [strict]
+               > Exp "[" Exps "]" //       [strict]
+               > Exp "(" Exps ")"        [seqstrict]
                | "-" Exp                 [strict]
                | "sizeOf" "(" Exp ")"    [strict]
                | "read" "(" ")"
@@ -153,14 +153,19 @@ Moreover, we want them to be strict, that is, to evaluate to lists of results
 whenever requested (e.g., when they appear as strict arguments of
 the constructs above). */
 
-  syntax Ids  ::= List{Id,","}
-  syntax Exps ::= List{Exp,","}          [strict]  // automatically hybrid now
+  syntax Exps ::= List{Exp,","}          [klabel(Exps), symbol, strict]
+
   syntax Exps ::= Ids
+  syntax Ids  ::= List{Id,","}           [klabel(Exps)]
+  syntax Ids  ::= Bottoms
+
   syntax Val
-  syntax Vals ::= List{Val,","}
+  syntax Vals ::= List{Val,","}          [klabel(Exps)]
+  syntax Vals ::= Bottoms
+
   syntax Bottom
-  syntax Bottoms ::= List{Bottom,","}
-  syntax Ids ::= Bottoms
+  syntax Bottoms ::= List{Bottom,","}    [klabel(Exps)]
+
 
 /*@ \subsection{Statements}
 Most of the statement constructs are standard for imperative languages.
@@ -337,7 +342,8 @@ to the \K tool, as indicated by the \textit{\$PGM} variable, followed by the
 
   configuration <T color="red">
                   <threads color="orange">
-                    <thread multiplicity="*" color="yellow">
+                    <thread multiplicity="*" type="Map" color="yellow">
+                      <id color="pink"> 0 </id>
                       <k color="green"> $PGM:Stmts ~> execute </k>
                     //<br/> // TODO(KORE): support latex annotations #1799
                       <control color="cyan">
@@ -347,7 +353,6 @@ to the \K tool, as indicated by the \textit{\$PGM} variable, followed by the
                     //<br/> // TODO(KORE): support latex annotations #1799
                       <env color="violet"> .Map </env>
                       <holds color="black"> .Map </holds>
-                      <id color="pink"> 0 </id>
                     </thread>
                   </threads>
                 //<br/> // TODO(KORE): support latex annotations #1799
@@ -425,7 +430,7 @@ array declarations can be arbitrary expressions, this virtually means
 that we can dynamically allocate memory in SIMPLE by means of array
 declarations. */
 
-  context var _:Id[HOLE];
+//  context var _:Id[HOLE];
 
   rule <k> var X:Id[N:Int]; => . ...</k>
        <env> Env => Env[X <- L] </env>
@@ -446,7 +451,7 @@ To this aim, we introduce two special unique variable identifiers,
 through and initializes each element of the first dimension with an array
 of the remaining dimensions, declared as variable \texttt{\$2}: */
 
-  syntax Id ::= "$1" | "$2"
+  syntax Id ::= "$1" [token] | "$2" [token]
   rule var X:Id[N1:Int, N2:Int, Vs:Vals];
     => var X[N1];
        {
@@ -455,7 +460,7 @@ of the remaining dimensions, declared as variable \texttt{\$2}: */
            X[$1] = $2;
          }
        }
-    [structural]
+    
 
 /*@ Ideally, one would like to perform syntactic desugarings like the one
 above before the actual semantics.  Unfortunately, that was not possible in
@@ -512,7 +517,7 @@ that the functions ``see'' each other, allowing for mutual recursion, etc. */
   syntax KItem ::= "execute"
   rule <k> execute => main(.Exps); </k>
        <env> Env </env>
-       <genv> .Map => Env </genv>  [structural]
+       <genv> .Map => Env </genv>  
 
 /*@ \section{Expressions}
 We next define the \K semantics of all the expression constructs. */
@@ -639,13 +644,14 @@ nulary \texttt{return;} statements. */
 
   syntax KItem ::=  (Map,K,ControlCellFragment)
 
-  rule <k> lambda(Xs,S)(Vs:Vals) ~> K => mkDecls(Xs,Vs) S return; </k>
+  rule <k> lambda(Xs,S)(Vs) ~> K => mkDecls(Xs,Vs) S return; </k>
        <control>
          <fstack> .List => ListItem((Env,K,C)) ...</fstack>
          C
        </control>
        <env> Env => GEnv </env>
        <genv> GEnv </genv>
+    requires isVals(Vs)
 
   rule <k> return(V:Val); ~> _ => V ~> K </k>
        <control>
@@ -710,8 +716,8 @@ environment after the block.  This allows us to have a very simple semantics
 for variable declarations, as we did above.  One can make the two rules below
 computational if one wants them to count as computational steps. */
 
-  rule {} => .  [structural]
-  rule <k> { S } => S ~> setEnv(Env) ...</k>  <env> Env </env>  [structural]
+  rule {} => .  
+  rule <k> { S } => S ~> setEnv(Env) ...</k>  <env> Env </env>  
 
 /*@ The basic definition of environment recovery is straightforward and
 given in the section on auxiliary constructs at the end of the file. */
@@ -749,7 +755,7 @@ to something).  This means that once $S_1$ completes in the rule below, $S_2$
 becomes automatically the next computation item without any additional
 (explicit or implicit) rules. */
 
-  rule S1:Stmts S2:Stmts => S1 ~> S2  [structural]
+  rule S1:Stmts S2:Stmts => S1 ~> S2  
 
 /*@ A subtle aspect of the rule above is that $S_1$ is declared to have sort
 $\it Stmts$ and not $\it Stmt$.  That is because desugaring macros can indeed
@@ -792,7 +798,7 @@ below works because our while loops in SIMPLE are indeed very basic.  If we
 allowed break/continue of loops then we would need a completely different
 semantics, which would also involve the \textsf{control} cell. */
 
-  rule while (E) S => if (E) {S while(E)S}  [structural]
+  rule while (E) S => if (E) {S while(E)S}  
 
 /*@ \subsection{Print}
 The \texttt{print} statement was strict, so all its arguments are now
@@ -802,7 +808,7 @@ its evaluated arguments to the output buffer, and discard the residual
 
   rule <k> print(V:Val, Es => Es); ...</k> <output>... .List => ListItem(V) </output>
     [print]
-  rule print(.Vals); => .  [structural]
+  rule print(.Vals); => .  
 
 /*@ \subsection{Exceptions}
 SIMPLE allows parametric exceptions, in that one can throw and catch a
@@ -974,8 +980,9 @@ The \texttt{mkDecls} auxiliary construct turns a list of identifiers
 and a list of values in a sequence of corresponding variable
 declarations. */
 
-  syntax Stmts ::= mkDecls(Ids,Vals)  [function]
-  rule mkDecls((X:Id, Xs:Ids), (V:Val, Vs:Vals)) => var X=V; mkDecls(Xs,Vs)
+  syntax Stmts ::= mkDecls(Ids,Exps)  [function]
+  rule mkDecls((X:Id, Xs:Ids), (V:Val, Vs:Exps)) => var X=V; mkDecls(Xs,Vs)
+    requires isVals(Vs)
   rule mkDecls(.Ids,.Vals) => {}
 
 /*@ \subsection{Location lookup}
@@ -994,7 +1001,7 @@ IMP++ tutorial: */
 // TODO: eliminate the env wrapper, like we did in IMP++
 
   syntax KItem ::= setEnv(Map)
-  rule <k> setEnv(Env) => . ...</k> <env> _ => Env </env>  [structural]
+  rule <k> setEnv(Env) => . ...</k> <env> _ => Env </env>  
 
 /*@  While theoretically sufficient, the basic definition for environment
 recovery alone is suboptimal.  Consider a loop \texttt{while (E)S},
@@ -1009,7 +1016,7 @@ recovery tasks, we only need to keep the last one.  The elegant rule below
 does precisely that, thus avoiding the unnecessary computation explosion
 problem: */
 
-  rule (setEnv(_) => .) ~> setEnv(_)  [structural]
+  rule (setEnv(_) => .) ~> setEnv(_)  
 
 /* In fact, the above follows a common convention in \K for recovery
 operations of cell contents: the meaning of a computation task of the form
@@ -1045,17 +1052,17 @@ corresponding store lookup operation. */
 // Local variable
 
   rule <k> lvalue(X:Id => loc(L)) ...</k> <env>... X |-> L:Int ...</env>
-    [structural]
+    
 
 // Array element: evaluate the array and its index;
 // then the array lookup rule above applies.
 
-  context lvalue(_::Exp[HOLE::Exps])
-  context lvalue(HOLE::Exp[_::Exps])
+//  context lvalue(_::Exp[HOLE::Exps])
+//  context lvalue(HOLE::Exp[_::Exps])
 
 // Finally, return the address of the desired object member
 
-  rule lvalue(lookup(L:Int) => loc(L))  [structural]
+  rule lvalue(lookup(L:Int) => loc(L))  
 
 /*@ \subsection{Initializing multiple locations}
 The following operation initializes a sequence of locations with the same
