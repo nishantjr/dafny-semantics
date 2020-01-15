@@ -1,0 +1,19 @@
+function factorial(y) {
+  var t=1;
+  for(var i=1; i<=y; ++i) {
+    t = t*i;
+  }
+  return t;
+}
+
+function sumToN(n) 
+{ 
+    var r = n;
+    if (n == 0) {}; 
+    if (n >= 0) r =
+} 
+
+function main() {
+  return factorial(4);
+}
+

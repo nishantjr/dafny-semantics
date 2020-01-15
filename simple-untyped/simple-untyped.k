@@ -644,7 +644,12 @@ nulary \texttt{return;} statements. */
 
   syntax KItem ::=  (Map,K,ControlCellFragment)
 
-  rule <k> lambda(Xs,S)(Vs) ~> K => mkDecls(Xs,Vs) S return; </k>
+  rule <k> lambda(Xs,S)(Vs) ~> K
+        => mkDecls(Xs,Vs) 
+           assert(REQUIRES);
+           S
+           return;
+       </k>
        <control>
          <fstack> .List => ListItem((Env,K,C)) ...</fstack>
          C
@@ -653,7 +658,9 @@ nulary \texttt{return;} statements. */
        <genv> GEnv </genv>
     requires isVals(Vs)
 
-  rule <k> return(V:Val); ~> _ => V ~> K </k>
+  rule <k> return(V:Val); ~> _
+        => assert(ENSURES[V/R]);
+           V ~> K </k>
        <control>
          <fstack> ListItem((Env,K,C)) => .List ...</fstack>
          (_ => C)
