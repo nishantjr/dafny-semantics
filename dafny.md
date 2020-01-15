@@ -20,17 +20,19 @@ module DAFNY
               | "x" [token]
               | "r" [token]
               | "n" [token]
+              | "foo" [token]
+  syntax Id ::= "Main" [token]
   syntax Exp ::= ResultExp
                | Id
                | "(" Exp ")" [bracket]
   syntax KResult ::= ResultExp
 
-  configuration <k> $PGM:Exps </k>
+  configuration <k> $PGM:Declaration ~> #call Main </k>
+                <methods> .Set </methods>
+                <stack> .List </stack>
                 <store> .Map </store>
                 <env> .Map </env>
                 <nextLoc> 0 </nextLoc>
-
-   syntax KItem ::= "#success"
 ```
 
 ## Statement sequencing:
@@ -118,8 +120,9 @@ module DAFNY
 
 ```k
   syntax Statement ::= "assume" Exp ";" [seqstrict]
-  rule <k> assume(true); => .K  ...        </k>
-  rule <k> assume(false); ~> S => #success </k>
+  rule <k> assume(true); => .K  ... </k>
+  rule <k> assume(false); ~> S => .K </k>
+       <stack> _ => .List </stack>
 ```
 
 ## Variable declaration:
@@ -200,24 +203,51 @@ module DAFNY
   rule <k> .Exps => .ResultExps ... </k>
 ```
 
-Main method:
+methods:
 
 ```k
-  syntax Main ::= "method" "Main" "(" ArgDecls ")"
-                    "returns" "(" ArgDecls ")"
-                    "requires" Exp
-                    "ensures" Exp
-                  "{" Statements "}"
-  rule method Main (ARGS) returns (RETS)
-         requires REQS
-         ensures ENSURES
-       { STMTS }
-    => #declareArgs(ARGS)
-    ~> #declareArgs(RETS)
-    ~> assume(REQS);
-    ~> STMTS
-    ~> assert(ENSURES);
-    ~> #success
+  syntax Declaration ::= "method" Id "(" ArgDecls ")"
+                           "returns" "(" ArgDecls ")"
+                           "requires" Exp
+                           "ensures" Exp
+                         "{" Statements "}"
+  rule <k> DECL:Declaration => .K
+           ...
+       </k>
+       <methods> MS => SetItem(DECL) MS </methods>
+```
+
+```k
+   syntax KItem ::= "#call" Id
+   syntax KItem ::= "#return" Exp [strict]
+   syntax KItem ::= stackFrame(K, Map, Map)
+   rule <k> #call MNAME ~> REST
+         => #declareArgs(ARG_DECLS)
+         ~> #declareArgs(RET_DECLS)
+         ~> assume(REQS);
+         ~> STMTS
+         ~> assert(ENSURES);
+         ~> #return R
+        </k>
+        <store> STORE => .Map </store>
+        <env> ENV => .Map </env>
+        <stack> .List => ListItem(stackFrame(REST, STORE, ENV))
+                ...
+        </stack>
+        <methods> SetItem(
+            method Id ( ARG_DECLS )
+              returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
+              requires REQS
+              ensures ENSURES
+            { STMTS }
+          )
+          ...
+        </methods>
+        
+  rule <k> #return R:ResultExp => R ~> REST </k>
+       <stack> ListItem(stackFrame(REST, STORE, ENV)) => .List
+               ...
+       </stack>
 
   syntax KItem ::= "#declareArgs" "(" ArgDecls ")"
   rule #declareArgs(.ArgDecls) => .K

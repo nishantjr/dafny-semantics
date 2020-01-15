@@ -31,6 +31,7 @@ module TEST [all-path]
        <store> .Map => ?_ </store>
        <env>   .Map => ?_ </env>
        <nextLoc> 0 => ?_ </nextLoc>
+       <methods> .Set => ?_ </methods>
 
   rule  <k> while ( i > 0 )
               invariant r + i * ( i + 1 ) / 2 == n * ( n + 1 ) / 2
@@ -84,6 +85,7 @@ module TEST [all-path]
             3
             => ?_
           </nextLoc>
+          <methods> .Set => ?_ </methods>
   requires true // ( V10 +Int V11 *Int ( V11 +Int 1 ) /Int 2 ==Int V1 *Int ( V1 +Int 1 ) /Int 2 )
   andBool( V13 +Int V14 *Int ( V14 +Int 1 ) /Int 2 ==Int 2 *Int ( V12 *Int ( V12 +Int 1 ) /Int 2 ) )
   // andBool( notBool V11 >Int 0 )

@@ -16,4 +16,10 @@ KDefinition( proj
            , backend = 'haskell'
            , directory = proj.builddir('defn/execution')
            )
+
+KDefinition( proj
+           , alias = 'simple-exec'
+           , backend = 'haskell'
+           , directory = proj.builddir('defn/simple-exec')
+           )
 KRunner(proj).main()
