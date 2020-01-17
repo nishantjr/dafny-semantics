@@ -31,7 +31,7 @@ module TEST [all-path]
        <store> .Map => ?_ </store>
        <env>   .Map => ?_ </env>
        <nextLoc> 0 => ?_ </nextLoc>
-       <methods> .Set => ?_ </methods>
+       <methods> .Map => ?_ </methods>
 
   rule  <k> while ( i > 0 )
               invariant r + i * ( i + 1 ) / 2 == n * ( n + 1 ) / 2
@@ -43,7 +43,6 @@ module TEST [all-path]
             { r := r + i ;  i := i - 1 ;  .Statements }
             .Statements
          ~> assert r == 2 * ( n * ( n + 1 ) / 2 ) ;
-         ~> #success
         </k>
           <store>
             0 |-> V1:Int
@@ -66,8 +65,8 @@ module TEST [all-path]
   andBool(V11 >=Int 0 ) 
 
   rule  <k>
-            while ( i > 0 ) invariant r + i * ( i + 1 ) / 2 == 2 * ( n * ( n + 1 ) / 2 ) && i >= 0 && n >= 0 { r := r + i ;  i := i - 1 ;  .Statements }  .Statements ~> assert r == 2 * ( n * ( n + 1 ) / 2 ) ; ~> #success
-          => #success
+            while ( i > 0 ) invariant r + i * ( i + 1 ) / 2 == 2 * ( n * ( n + 1 ) / 2 ) && i >= 0 && n >= 0 { r := r + i ;  i := i - 1 ;  .Statements }  .Statements ~> assert r == 2 * ( n * ( n + 1 ) / 2 ) ;
+          => .K
           </k>
           <store>
             0 |-> V12:Int
@@ -85,7 +84,7 @@ module TEST [all-path]
             3
             => ?_
           </nextLoc>
-          <methods> .Set => ?_ </methods>
+          <methods> .Map => ?_ </methods>
   requires true // ( V10 +Int V11 *Int ( V11 +Int 1 ) /Int 2 ==Int V1 *Int ( V1 +Int 1 ) /Int 2 )
   andBool( V13 +Int V14 *Int ( V14 +Int 1 ) /Int 2 ==Int 2 *Int ( V12 *Int ( V12 +Int 1 ) /Int 2 ) )
   // andBool( notBool V11 >Int 0 )

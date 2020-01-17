@@ -3,8 +3,14 @@
 #Equals
   <generatedTop>
     <k>
-      #success
+      .
     </k>
+    <methods>
+      SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures n * 2 == r { r := n * 2 ;  .Statements } )
+    </methods>
+    <stack>
+      .List
+    </stack>
     <store>
       0 |-> _0:Int
       1 |-> _0 *Int 2

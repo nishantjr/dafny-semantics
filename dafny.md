@@ -14,21 +14,22 @@ module DAFNY
   syntax ArgDecls ::= List{ArgDecl, ","}    [klabel(ArgDecls)]
   syntax ArgDecl ::= Id ":" Type
   syntax Type ::= "int"
-  
+
   // Needed for parsing unit-tests
   syntax Id ::= "i" [token]
               | "x" [token]
               | "r" [token]
               | "n" [token]
               | "foo" [token]
-  syntax Id ::= "Main" [token]
+  syntax Id ::= "Main"   [token]
+              | "Verify" [token]
   syntax Exp ::= ResultExp
                | Id
                | "(" Exp ")" [bracket]
   syntax KResult ::= ResultExp
 
-  configuration <k> $PGM:Declaration ~> #call Main </k>
-                <methods> .Set </methods>
+  configuration <k> $PGM:Declarations ~> #init </k>
+                <methods> .Map </methods>
                 <stack> .List </stack>
                 <store> .Map </store>
                 <env> .Map </env>
@@ -104,7 +105,7 @@ module DAFNY
 ```k
   rule <k> X:Id => V ... </k>
        <env> X |-> LOC ... </env>
-       <store> LOC |-> V ... </store>
+       <store> LOC |-> (V, _):Binding ... </store>
 ```
 
 ## Assert statements:
@@ -125,13 +126,26 @@ module DAFNY
        <stack> _ => .List </stack>
 ```
 
-## Variable declaration:
+## Variable/Constant declaration:
+
+```k
+  syntax Binding ::= "(" ResultExp "," Constness ")"
+  syntax Constness ::= "const" | "var"
+```
 
 ```k
   syntax Statement ::= "var" Id ":" Type ";"
   rule <k> var X : int ; => .K ... </k>
        <env> ENV => ENV[X <- LOC] </env>
-       <store> .Map => LOC |-> ?_:Int ... </store>
+       <store> .Map => LOC |-> (?_:Int, var):Binding ... </store>
+       <nextLoc> LOC => LOC +Int 1 </nextLoc>
+```
+
+```k
+  syntax Statement ::= "const" Id ":" Type ":=" Exp ";"
+  rule <k> const X : int := VAL:ResultExp; => .K ... </k>
+       <env> ENV => ENV[X <- LOC] </env>
+       <store> .Map => LOC |-> (VAL, const):Binding ... </store>
        <nextLoc> LOC => LOC +Int 1 </nextLoc>
 ```
 
@@ -141,7 +155,7 @@ module DAFNY
   syntax Statement ::= Id ":=" Exp ";" [seqstrict(2)]
   rule <k> X := V:Int ; => .K ... </k>
        <env> ... X |-> LOC ... </env>
-       <store> ... LOC |-> (_ => V) ... </store>
+       <store> ... LOC |-> (_ => V, var) ... </store>
 ```
 
 ## if statements
@@ -185,75 +199,142 @@ module DAFNY
        </k>
 ```
 
-```k
-  syntax Exps       ::= List{Exp, ","}        [klabel(Exps)]
-  syntax ResultExps ::= List{ResultExp, ","}  [klabel(ResultExps)]
-  
-  syntax Exp  ::= "#hole"
+## Methods
 
-  rule <k> (E, Es):Exps => E ~> #hole, Es ... </k>
-    requires notBool isResultExp(E)
-  rule <k> E:ResultExp ~> #hole, Es:Exps => E, Es ... </k>
-    
-  rule <k> (E, Es):Exps => Es ~> E, #hole ... </k>
-    requires isResultExp(E)
-//     andBool notBool isResultExps(Es)
-  rule <k> Es:ResultExps ~> E, #hole => E, Es:ResultExps ... </k>
-  
-  rule <k> .Exps => .ResultExps ... </k>
+```k
+  syntax Exp   ::= Id "(" Exps ")" [strict(2)]
+  syntax KItem ::= stackFrame(K, Map, Map)
+  syntax KItem ::= "#return" Exp [strict]
+
+  rule <k> #return R:ResultExp => R ~> REST </k>
+       <stack> ListItem(stackFrame(REST, STORE, ENV)) => .List
+               ...
+       </stack>
+       <store> _ => STORE </store>
+       <env>   _ => ENV   </env>
 ```
 
-methods:
+```k
+  syntax Exps       ::= List{Exp, ","}        [klabel(Exps), seqstrict]
+                      | ResultExps
+  syntax ResultExps ::= List{ResultExp, ","}  [klabel(Exps)]
+  syntax KResult    ::= ResultExps
 
+// TODO: Why is this needed?
+  rule isKResult(.Exps) => true                                            [simplification]
+  rule isKResult(.ResultExps) => true                                      [simplification]
+  rule isKResult(EXP, EXPS:Exps) => isKResult(EXP) andBool isKResult(EXPS) [simplification]
+```
+
+```k
+  syntax Declarations ::= List{Declaration, ""}    [klabel(Declarations)]
+  rule <k> D Ds:Declarations => D ~> Ds ... </k>
+  rule <k> .Declarations => .K ... </k>
+```
+
+```execution
+  rule <k> MNAME:Id ( ARGS ) ~> REST
+        => #declareConstArgs(ARG_DECLS, ARGS)
+        ~> #declareArgs(RET_DECLS)
+        ~> assert(REQS);
+        ~> STMTS
+        ~> assert(ENSURES);
+        ~> #return R
+       </k>
+       <store> STORE => .Map </store>
+       <env> ENV => .Map </env>
+       <stack> .List => ListItem(stackFrame(REST, STORE, ENV))
+               ...
+       </stack>
+       <methods> MNAME |-> 
+           method MNAME ( ARG_DECLS )
+             returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
+             requires REQS
+             ensures ENSURES
+           { STMTS }
+         ...
+       </methods>
+    requires isKResult(ARGS)
+```
+
+```verification
+  rule <k> MNAME:Id ( ARGS ) ~> REST
+        => #declareConstArgs(ARG_DECLS, ARGS)
+        ~> #declareArgs(RET_DECLS)
+        ~> assert(REQS);
+        ~> #abstract(ENSURES);
+        ~> #return R
+       </k>
+       <store> STORE => .Map </store>
+       <env> ENV => .Map </env>
+       <stack> .List => ListItem(stackFrame(REST, STORE, ENV))
+               ...
+       </stack>
+       <methods> MNAME |-> 
+           method MNAME ( ARG_DECLS )
+             returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
+             requires REQS
+             ensures ENSURES
+           { STMTS }
+         ...
+       </methods>
+    requires isKResult(ARGS)
+```
+   
 ```k
   syntax Declaration ::= "method" Id "(" ArgDecls ")"
                            "returns" "(" ArgDecls ")"
                            "requires" Exp
                            "ensures" Exp
                          "{" Statements "}"
-  rule <k> DECL:Declaration => .K
+  rule <k> method MNAME ( ARG_DECLS )
+              returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
+              requires REQS
+              ensures ENSURES
+            { STMTS }
+          #as DECL
+        => .K
            ...
        </k>
-       <methods> MS => SetItem(DECL) MS </methods>
+       <methods> MS => (MNAME |-> DECL) MS </methods>
 ```
 
 ```k
-   syntax KItem ::= "#call" Id
-   syntax KItem ::= "#return" Exp [strict]
-   syntax KItem ::= stackFrame(K, Map, Map)
-   rule <k> #call MNAME ~> REST
+   syntax KItem ::= "#init"
+```
+
+```execution
+   rule <k> #init => Main(.Exps) ... </k>
+```
+
+```verification
+   rule <k> #init
          => #declareArgs(ARG_DECLS)
          ~> #declareArgs(RET_DECLS)
          ~> assume(REQS);
          ~> STMTS
          ~> assert(ENSURES);
-         ~> #return R
+            ...
         </k>
-        <store> STORE => .Map </store>
-        <env> ENV => .Map </env>
-        <stack> .List => ListItem(stackFrame(REST, STORE, ENV))
-                ...
-        </stack>
-        <methods> SetItem(
-            method Id ( ARG_DECLS )
+        <methods> Verify |-> 
+            method Verify ( ARG_DECLS )
               returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
               requires REQS
               ensures ENSURES
             { STMTS }
-          )
           ...
         </methods>
-        
-  rule <k> #return R:ResultExp => R ~> REST </k>
-       <stack> ListItem(stackFrame(REST, STORE, ENV)) => .List
-               ...
-       </stack>
+```
 
+```k
   syntax KItem ::= "#declareArgs" "(" ArgDecls ")"
   rule #declareArgs(.ArgDecls) => .K
-  rule #declareArgs(X:Id : T)  => var X : T ;
-  rule #declareArgs(D, DS) => #declareArgs(D) ~> #declareArgs(DS)
-    requires DS =/=K .ArgDecls
+  rule #declareArgs(X:Id : T, DS) => var X : T ; ~> #declareArgs(DS)
+ 
+  syntax KItem ::= "#declareConstArgs" "(" ArgDecls "," Exps ")"
+  rule #declareConstArgs(.ArgDecls, .ResultExps) => .K
+  rule #declareConstArgs((X:Id : T, DS), (E, Es))
+    => const X : T := E ; ~> #declareConstArgs(DS, Es)
 ```
 
 `#abstract(EXP)` statements: resets all variables in the store to symbolic values
@@ -269,14 +350,10 @@ such that `EXP` holds.
        <store> STORE </store>
   syntax KItem ::= "#resetStore" "(" List ")"
   rule <k> #resetStore(.List) => .K ... </k>
-  rule <k> #resetStore(ListItem(LOC) REST)
-        => #resetStore(              REST)
-           ...
-       </k>
-       <store>
-          LOC |-> (_ => ?_:Int)
-          ...
-       </store>
+  rule <k> #resetStore(ListItem(LOC) REST) => #resetStore(REST) ... </k>
+       <store> LOC |-> ((_ => ?_:Int), var):Binding ... </store>
+  rule <k> #resetStore(ListItem(LOC) REST) => #resetStore(REST) ... </k>
+       <store> LOC |-> (_, const):Binding ... </store>
 ```
 
 ```k

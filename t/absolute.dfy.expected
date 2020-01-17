@@ -3,8 +3,14 @@
     #Equals
       <generatedTop>
         <k>
-          #success
+          .
         </k>
+        <methods>
+          SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures r >= 0 { if ( n <= 0 ) { r := 0 - n ;  .Statements }  if ( n >= 0 ) { r := n ;  .Statements }  .Statements } )
+        </methods>
+        <stack>
+          .List
+        </stack>
         <store>
           0 |-> _0:Int
           1 |-> 0 -Int _0
@@ -42,8 +48,14 @@
     #Equals
       <generatedTop>
         <k>
-          #success
+          .
         </k>
+        <methods>
+          SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures r >= 0 { if ( n <= 0 ) { r := 0 - n ;  .Statements }  if ( n >= 0 ) { r := n ;  .Statements }  .Statements } )
+        </methods>
+        <stack>
+          .List
+        </stack>
         <store>
           0 |-> _0:Int
           1 |-> _0:Int
@@ -75,8 +87,14 @@
     #Equals
       <generatedTop>
         <k>
-          #success
+          .
         </k>
+        <methods>
+          SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures r >= 0 { if ( n <= 0 ) { r := 0 - n ;  .Statements }  if ( n >= 0 ) { r := n ;  .Statements }  .Statements } )
+        </methods>
+        <stack>
+          .List
+        </stack>
         <store>
           0 |-> _0:Int
           1 |-> _0:Int
