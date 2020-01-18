@@ -3,11 +3,18 @@
     #Equals
       <generatedTop>
         <k>
-          #success
+          .
         </k>
+        <methods>
+          Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 18 ;  .Statements }
+          Verify |-> method Verify ( x : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires x > 0 ensures r > 0 { r := 2 * x ;  r := r * x ;  .Statements }
+        </methods>
+        <stack>
+          .List
+        </stack>
         <store>
-          0 |-> _0:Int
-          1 |-> 2 *Int _0 *Int _0
+          0 |-> ( _0:Int , var )
+          1 |-> ( 2 *Int _0 *Int _0 , var )
         </store>
         <env>
           r |-> 1
@@ -36,11 +43,18 @@
     #Equals
       <generatedTop>
         <k>
-          #success
+          .
         </k>
+        <methods>
+          Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 18 ;  .Statements }
+          Verify |-> method Verify ( x : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires x > 0 ensures r > 0 { r := 2 * x ;  r := r * x ;  .Statements }
+        </methods>
+        <stack>
+          .List
+        </stack>
         <store>
-          0 |-> _0:Int
-          1 |-> _00:Int
+          0 |-> ( _0:Int , var )
+          1 |-> ( _00:Int , var )
         </store>
         <env>
           r |-> 1

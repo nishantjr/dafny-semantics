@@ -20,8 +20,9 @@ module TEST [all-path]
        </k>
        <store>   .Map => _ </store>
        <env>     .Map => _ </env>
+       <stack>   .List => _ </stack>
+       <methods> .Map => _ </methods>
        <nextLoc> 0    => _ </nextLoc>
-       <methods> .Set => _ </methods>
 
   rule <k> while ( i > 0 )  
              invariant r + i * ( i + 1 ) / 2 == n * ( n + 1 ) / 2
@@ -32,9 +33,9 @@ module TEST [all-path]
         => .K
        </k>
        <store>
-         0 |-> V1:Int
-         1 |-> V10:Int
-         2 |-> V11:Int
+         0 |-> ( V1:Int, const )
+         1 |-> ( V10:Int, var)
+         2 |-> ( V11:Int, var)
         => _
        </store>
        <env>
@@ -47,8 +48,9 @@ module TEST [all-path]
          3
         => _
        </nextLoc>
+       <stack>   _ </stack>
        <methods>
-         SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { var i : int ;  r := 0 ;  i := n ;  while ( i > 0 ) invariant r + i * ( i + 1 ) / 2 == n * ( n + 1 ) / 2 && i >= 0 && n >= 0 && r >= 0 { r := r + i ;  i := i - 1 ;  .Statements }  .Statements } )
+         Main |-> method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { var i : int ;  r := 0 ;  i := n ;  while ( i > 0 ) invariant r + i * ( i + 1 ) / 2 == n * ( n + 1 ) / 2 && i >= 0 && n >= 0 && r >= 0 { r := r + i ;  i := i - 1 ;  .Statements }  .Statements }
       => _
        </methods>
     requires V10 +Int V11 *Int ( V11 +Int 1 ) /Int 2 ==Int V1 *Int ( V1 +Int 1 ) /Int 2

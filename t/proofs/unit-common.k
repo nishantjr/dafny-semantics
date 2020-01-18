@@ -37,7 +37,7 @@ module TEST [all-path]
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
   rule <k> var i : int ;
            i := 100 ;
@@ -48,7 +48,7 @@ module TEST [all-path]
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
   rule <k> var i : int ;
            i := 100 ;
@@ -59,7 +59,7 @@ module TEST [all-path]
        <store> .Map => ?_ </store>
        <env> .Map => ?_ </env>
        <nextLoc> 0 => 1 </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
   rule <k>   var i : int ; i := 100 ;
            { var i : int ; i := 200 ; }
@@ -69,7 +69,7 @@ module TEST [all-path]
        <store>   .Map => ?_  </store>
        <env>     .Map => ?_  </env>
        <nextLoc> 0    => ?_  </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
   rule <k> 1, 2 + 2, 3, .Exps
         => 1, 4, 3, .ResultExps
@@ -78,7 +78,7 @@ module TEST [all-path]
        <store>   .Map => ?_  </store>
        <env>     .Map => ?_  </env>
        <nextLoc> 0    => ?_  </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
   rule <k> (1 + 2), (2 + 3), (3 + 4), .Exps
         => 3, 5, 7, .ResultExps
@@ -87,11 +87,9 @@ module TEST [all-path]
        <store>   .Map => ?_  </store>
        <env>     .Map => ?_  </env>
        <nextLoc> 0    => ?_  </nextLoc>
-       <methods> .Set </methods>
+       <methods> .Map </methods>
 
-  rule <k> method foo(i : int) returns(r : int) requires true ensures true { r := i; }
-        => .K
-       </k>
-       <methods> .Set => SetItem(method foo(i : int) returns(r : int) requires true ensures true { r := i; }) </methods>
+  rule <k> method foo(i : int) returns(r : int) requires true ensures true { r := i; } => .K </k>
+       <methods> .Map => foo |-> method foo(i : int) returns(r : int) requires true ensures true { r := i; } </methods>
 
 endmodule

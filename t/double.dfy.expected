@@ -6,14 +6,15 @@
       .
     </k>
     <methods>
-      SetItem ( method Main ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures n * 2 == r { r := n * 2 ;  .Statements } )
+      Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 10 , .ResultExps ) == 20 ;  assert Verify ( -10 , .ResultExps ) == -20 ;  .Statements }
+      Verify |-> method Verify ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures n * 2 == r { r := n * 2 ;  .Statements }
     </methods>
     <stack>
       .List
     </stack>
     <store>
-      0 |-> _0:Int
-      1 |-> _0 *Int 2
+      0 |-> ( _0:Int , var )
+      1 |-> ( _0 *Int 2 , var )
     </store>
     <env>
       n |-> 0

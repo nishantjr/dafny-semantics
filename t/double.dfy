@@ -1,4 +1,4 @@
-method Main(n : int) returns (r : int)
+method Verify(n : int) returns (r : int)
   requires true
   ensures n * 2 == r
 {

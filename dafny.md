@@ -228,7 +228,7 @@ module DAFNY
 
 ```k
   syntax Declarations ::= List{Declaration, ""}    [klabel(Declarations)]
-  rule <k> D Ds:Declarations => D ~> Ds ... </k>
+  rule <k> (D Ds):Declarations => D ~> Ds ... </k>
   rule <k> .Declarations => .K ... </k>
 ```
 

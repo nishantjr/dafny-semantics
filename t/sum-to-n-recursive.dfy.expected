@@ -1,0 +1,179 @@
+    #Not ( {
+      _0
+    #Equals
+      0
+    } )
+  #And
+    #Not ( {
+      _1
+    #Equals
+      ( _0 -Int 1 ) *Int ( _0 -Int 1 +Int 1 ) /Int 2
+    } )
+  #And
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          .
+        </k>
+        <methods>
+          Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 6 ;  .Statements }
+          Verify |-> method Verify ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { if ( n == 0 ) { r := n ;  .Statements }  if ( n > 0 ) { var s : int ;  s := Verify ( n - 1 , .ResultExps ) ;  r := n + s ;  .Statements }  .Statements }
+        </methods>
+        <stack>
+          .List
+        </stack>
+        <store>
+          3 |-> ( _0 -Int 1 , const )
+          4 |-> ( _1:Int , var )
+        </store>
+        <env>
+          n |-> 3
+          r |-> 4
+        </env>
+        <nextLoc>
+          5
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 -Int 1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >Int 0
+    }
+#Or
+    #Not ( {
+      _0
+    #Equals
+      0
+    } )
+  #And
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          .
+        </k>
+        <methods>
+          Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 6 ;  .Statements }
+          Verify |-> method Verify ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { if ( n == 0 ) { r := n ;  .Statements }  if ( n > 0 ) { var s : int ;  s := Verify ( n - 1 , .ResultExps ) ;  r := n + s ;  .Statements }  .Statements }
+        </methods>
+        <stack>
+          .List
+        </stack>
+        <store>
+          0 |-> ( _0:Int , var )
+          1 |-> ( _0 +Int ( _0 -Int 1 ) *Int ( _0 -Int 1 +Int 1 ) /Int 2 , var )
+          2 |-> ( ( _0 -Int 1 ) *Int ( _0 -Int 1 +Int 1 ) /Int 2 , var )
+        </store>
+        <env>
+          n |-> 0
+          r |-> 1
+          s |-> 2
+        </env>
+        <nextLoc>
+          5
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      _0 +Int ( _0 -Int 1 ) *Int ( _0 -Int 1 +Int 1 ) /Int 2
+    #Equals
+      _0 *Int ( _0 +Int 1 ) /Int 2
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 -Int 1 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >=Int 0
+    }
+  #And
+    {
+      true
+    #Equals
+      _0 >Int 0
+    }
+#Or
+    {
+      Result
+    #Equals
+      <generatedTop>
+        <k>
+          .
+        </k>
+        <methods>
+          Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 6 ;  .Statements }
+          Verify |-> method Verify ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { if ( n == 0 ) { r := n ;  .Statements }  if ( n > 0 ) { var s : int ;  s := Verify ( n - 1 , .ResultExps ) ;  r := n + s ;  .Statements }  .Statements }
+        </methods>
+        <stack>
+          .List
+        </stack>
+        <store>
+          0 |-> ( _0:Int , var )
+          1 |-> ( _00:Int , var )
+        </store>
+        <env>
+          n |-> 0
+          r |-> 1
+        </env>
+        <nextLoc>
+          2
+        </nextLoc>
+      </generatedTop>
+    }
+  #And
+    {
+      false
+    #Equals
+      _0 >=Int 0
+    }
+#Or
+  {
+    Result
+  #Equals
+    <generatedTop>
+      <k>
+        .
+      </k>
+      <methods>
+        Main |-> method Main ( .ArgDecls ) returns ( r : int , .ArgDecls ) requires true ensures true { assert Verify ( 0 , .ResultExps ) == 0 ;  assert Verify ( 3 , .ResultExps ) == 6 ;  .Statements }
+        Verify |-> method Verify ( n : int , .ArgDecls ) returns ( r : int , .ArgDecls ) requires n >= 0 ensures r == n * ( n + 1 ) / 2 { if ( n == 0 ) { r := n ;  .Statements }  if ( n > 0 ) { var s : int ;  s := Verify ( n - 1 , .ResultExps ) ;  r := n + s ;  .Statements }  .Statements }
+      </methods>
+      <stack>
+        .List
+      </stack>
+      <store>
+        0 |-> ( 0 , var )
+        1 |-> ( 0 , var )
+      </store>
+      <env>
+        n |-> 0
+        r |-> 1
+      </env>
+      <nextLoc>
+        2
+      </nextLoc>
+    </generatedTop>
+  }
