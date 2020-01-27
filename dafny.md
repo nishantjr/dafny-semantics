@@ -100,6 +100,13 @@ module DAFNY
   rule <k> true && E:Exp => E ... </k>
 ```
 
+## Fresh symbolic values
+
+```k
+  syntax Exp ::= "symbolic_int"  "(" ")"
+  rule <k> symbolic_int() => ?I:Int ... </k>
+```
+
 ## Variable lookup:
 
 ```k
@@ -111,8 +118,8 @@ module DAFNY
 ## Assert statements:
 
 ```k
-  syntax Statement ::= "assert" Exp ";" [seqstrict]
   syntax KItem ::= "#error"
+  syntax Statement ::= "assert" Exp ";" [seqstrict]
   rule assert(true); => .K
   rule assert(false); => #error
 ```
@@ -123,7 +130,6 @@ module DAFNY
   syntax Statement ::= "assume" Exp ";" [seqstrict]
   rule <k> assume(true); => .K  ... </k>
   rule <k> assume(false); ~> S => .K </k>
-       <stack> _ => .List </stack>
 ```
 
 ## Variable/Constant declaration:
@@ -308,22 +314,34 @@ module DAFNY
 ```
 
 ```verification
-   rule <k> #init
-         => #declareArgs(ARG_DECLS)
-         ~> #declareArgs(RET_DECLS)
-         ~> assume(REQS);
-         ~> STMTS
-         ~> assert(ENSURES);
-            ...
-        </k>
-        <methods> Verify |-> 
-            method Verify ( ARG_DECLS )
-              returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
-              requires REQS
-              ensures ENSURES
-            { STMTS }
-          ...
-        </methods>
+   syntax KItem ::= "#verify" Id
+   rule <k> #init => #verify Verify ... </k>
+```
+
+TODO: When verification succeeds this leaves the K cell containing the return value. Do we want this?
+
+```verification
+  rule <k> #verify MNAME
+        => #declareArgs(ARG_DECLS) // TODO: Change this to use constArgs
+        ~> #declareArgs(RET_DECLS)
+        ~> #abstract(REQS);
+        ~> STMTS
+        ~> assert(ENSURES);
+        ~> #return R
+       </k>
+       <store> STORE => .Map </store>
+       <env> ENV => .Map </env>
+       <stack> .List => ListItem(stackFrame(REST, STORE, ENV))
+               ...
+       </stack>
+       <methods> MNAME |-> 
+           method MNAME ( ARG_DECLS )
+             returns ( (R : TYPE, .ArgDecls)  #as RET_DECLS )
+             requires REQS
+             ensures ENSURES
+           { STMTS }
+         ...
+       </methods>
 ```
 
 ```k
